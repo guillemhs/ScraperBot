@@ -29,4 +29,3 @@ class MininovaCrawlSpider( CrawlSpider ):
         with open( folder + '/index.html', 'w+' ) as file_obj:
             file_obj.write( response.body )
         return torrent
-
