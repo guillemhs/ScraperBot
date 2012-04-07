@@ -1,4 +1,5 @@
 import urllib2, re
+
 from bs4 import BeautifulSoup
 
 page = urllib2.urlopen( "http://www.givegoodweb.com/examples/ogm-samples.html" )
