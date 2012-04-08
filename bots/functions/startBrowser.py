@@ -4,7 +4,6 @@ import cookielib
 class BotBrowser():
 
     def scrap_website(self, urltoscrap):
-        print urltoscrap
         # Browser
         br = mechanize.Browser()
 
