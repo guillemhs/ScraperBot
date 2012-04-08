@@ -1,12 +1,9 @@
-from parser import Parser
-from startBrowser import BotBrowser
+import functions.parser
+import functions.startBrowser
 
-br = BotBrowser()
+br = functions.startBrowser.BotBrowser()
 output = br.scrap_website('http://www.xvideos.com')
-
-print output
 
 # Try and process the page.
 # The class should have been defined first, remember.
-myparser = Parser()
-print myparser.get_hyperlinks()
+myparser = functions.parser.Parser()
