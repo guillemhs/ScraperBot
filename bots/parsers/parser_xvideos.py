@@ -22,15 +22,56 @@ class XvideosParser():
             results.append(tag)
         return results[4]
 
+    def split_title(self, output):
+        auxOutput = output.lstrip('<span class="red" style="text-decoration:underline;">').split('<')
+        return auxOutput[0]
+
     def get_video_td(self):
         results = []
         for tag in self.soup.findAll("td", { "width":"183" }):
             results.append(tag)
         return results
 
+    def get_tags(self, output):
+        global auxResults
+        auxResults = []
+        for tag in output.findAll("table", { "width":"930" }):
+            auxResults.append(tag)
+        return auxResults
+
+    def get_video_td_from_categories(self, output):
+        results = []
+        for tag in output.findAll("td", { "width":"183" }):
+            results.append(tag)
+        return results
+
+    def get_thumbnail(self, output):
+        global auxThumbnail, thumbnailStruct
+        auxThumbnail = []
+        thumbnailStruct = []
+        for tag in output.findAll('img'):
+            auxThumbnail = tag
+        thumbnailStruct = str(auxThumbnail).split('"')
+        if thumbnailStruct != None:
+            return thumbnailStruct[1]
+        else:
+            return None
+
     def get_video_duration(self, output):
         for tag in output.findAll('b'):
             return tag
+
+    def get_video_duration_on_categories(self, output):
+        for tag in output.findAll('strong'):
+            return tag
+
+    def split_video_duration(self, output):
+        auxOutput = output.lstrip('<b>(').split(')')
+        return auxOutput[0]
+
+    def split_video_duration_on_categories(self, output):
+        auxOutput = output.lstrip('<strong>(').split(')')
+        return auxOutput[0]
 
     def parse_videos(self):
         results = []
@@ -44,19 +85,31 @@ class XvideosParser():
                 pass
         return results
 
+    def parse_tags(self, output):
+        global resultsTags
+        resultsTags = []
+        for m in output:
+            if re.match('(\/tags\/)', m):
+                auxTag = str(m).split('/')
+                resultsTags.append(auxTag[2])
+        return resultsTags
+
+
     def parse_categories(self, output):
-        results = []
+        global resultsForCategories
+        resultsForCategories = []
         match = re.compile('(xvideos\.com\/c\/)([-a-zA-Z0-9_]+)')
         for link in self.soup.findAll('a'):
             try:
                 href = link['href']
                 if re.search(match, href):
-                    results.append(href)
+                    resultsForCategories.append(href)
             except KeyError:
                 pass
-        return results
+        return resultsForCategories
 
     def parse_video_id(self, output):
+        global auxOutput
         match = re.compile('(?<=xvideos\.com\/video)([-a-zA-Z0-9_]+)')
         for link in output.findAll('a'):
             try:

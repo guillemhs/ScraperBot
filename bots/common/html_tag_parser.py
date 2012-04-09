@@ -1,27 +1,33 @@
 from BeautifulSoup import BeautifulSoup
 
 class HtmlTagParser():
-
-    def get_title (self, output):
+    def __init__(self, output):
         soup = BeautifulSoup(output)
-        return soup.findAll('title')
+        self.soup = soup
+
+    def get_title (self):
+        return self.soup.findAll('title')
 
 
-    def get_metadata(self, output):
-        soup = BeautifulSoup(output)
-        return soup.findAll('meta')
+    def get_metadata(self):
+        return self.soup.findAll('meta')
 
-    def get_description(self, output):
-        soup = BeautifulSoup(output)
-        return soup.findAll(attrs={"name":"description"})
+    def get_description(self):
+        return self.soup.findAll(attrs={"name":"description"})
 
-    def get_keywords(self, output):
-        soup = BeautifulSoup(output)
-        return soup.findAll(attrs={"name":"keywords"})
+    def get_keywords(self):
+        return self.soup.findAll(attrs={"name":"keywords"})
 
     def parse_href(self, output):
-        results = []
-        soup = BeautifulSoup(output)
-        for tag in soup.findAll('a', href=True):
-            results.append(tag['href'])
-        return results
+        global href_parsed
+        href_parsed = []
+        for tag in output.findAll('a', href=True):
+            href_parsed = tag['href']
+        return href_parsed
+
+    def parse_all_href(self, output):
+        global all_href_parsed
+        all_href_parsed = []
+        for tag in output.findAll('a', href=True):
+            all_href_parsed.append(tag['href'])
+        return all_href_parsed
