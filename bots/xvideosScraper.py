@@ -1,14 +1,21 @@
-import functions.parser_xvideos
-import functions.startBrowser
+import parsers.parser_xvideos
+import common.startBrowser, common.html_tag_parser
 
-br = functions.startBrowser.BotBrowser()
-output = br.scrap_website('http://www.xvideos.com')
+br = common.startBrowser.BotBrowser()
+htmlscraper = common.html_tag_parser.HtmlTagParser()
+output = br.scrap_website('http://www.xvideos.com/')
 
-parser = functions.parser_xvideos.XvideosParser()
-results = parser.parse_xvideos_videos(output);
-results = parser.parse_xvideos_categories(output);
+parser = parsers.parser_xvideos.XvideosParser(output)
 
+videoduration = parser.get_video_td()
 
-print parser.parse_xvideos_video_id(output);
+title = parser.get_title_on_homepage(videoduration[0])
+print title
+videoduration1 = parser.get_video_duration(videoduration[0])
+print videoduration1
 
- < iframe src = "http://flashservice.xvideos.com/embedframe/1927535" frameborder = 0 width = 510 height = 400 scrolling = no ></ iframe >
+video_id = parser.parse_video_id(videoduration[0])
+print video_id
+
+iframe_object = parser.create_video_iframe(video_id[0])
+print iframe_object
