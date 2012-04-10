@@ -36,7 +36,7 @@ class YoupornParser():
         thumbnailStruct = str(auxThumbnail).split('"')
         return thumbnailStruct[1]
 
-    def get_tags(self, output):
+    def get_tags_and_categories(self, output):
         global auxResults
         auxResults = []
         for tag in output.findAll("ul", { "class":"listCat" }):
