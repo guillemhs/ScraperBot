@@ -44,3 +44,6 @@ class HtmlTagParser():
     def convert_string_into_categories(self, output):
         output.lower()
         return output.split(" ")
+
+    def uppercase_first_letter_from_string(self, output):
+        return  output.capitalize()

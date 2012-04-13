@@ -9,7 +9,7 @@ def scraping_homepage(br, htmlscraper, parser, output):
         try:
             print "---------------------" + str(i) + " from " + str(len(reu)) + "------------------------"
             title = htmlscraper.convert_hypen_into_space(parser.split_url(htmlscraper.parse_href(reu[i])))
-            print "title: " + title
+            print "title: " + htmlscraper.uppercase_first_letter_from_string(title)
             title_as_categories = htmlscraper.convert_title_to_categories(str(title))
             print "title convert to categories: " + str(title_as_categories)
             url = "http://www.youporn.com" + htmlscraper.parse_href(reu[i])
