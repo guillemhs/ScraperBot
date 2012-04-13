@@ -1,5 +1,3 @@
-import re
-
 from BeautifulSoup import BeautifulSoup
 
 class YoupornParser():
@@ -59,6 +57,13 @@ class YoupornParser():
         global auxOutput
         auxOutput = output.lstrip('http://www.youporn.com/watch').split('/')
         return auxOutput
+
+    def get_duration(self, output):
+        authordiv = output.findAll('h2', attrs={'class': 'duration'})
+        print output
+        print authordiv
+        return str(authordiv)
+
 
     def create_video_iframe(self, in1, in2):
         return "<iframe src=\"http://www.youporn.com/embed/" + in1 + "/" + in2 + "/\" frameborder=\'0\' height=\'485\' width=\'615\' scrolling=\'no\' name=\'yp_embed_video\'></iframe>"
