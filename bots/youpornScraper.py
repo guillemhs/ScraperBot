@@ -7,28 +7,27 @@ def scraping_homepage(br, htmlscraper, parser, output):
     reu = parser.get_video_box()
     for i in range(len(reu)):
         ii = parser.get_title()
-        print parser.split_title(str(ii[0]))
+        title = parser.split_title(str(ii[0]))
+        print "title: " + title
+        title_as_categories = htmlscraper.convert_title_to_categories(title)
+        print "title convert to categories: " + str(title_as_categories)
         url = "http://www.youporn.com" + htmlscraper.parse_href(reu[i])
-        print url
-        print parser.get_thumbnail(reu[i])
+        print "url: " + url
+        print "url objects: " + htmlscraper.convert_hypen_into_space(parser.split_url(url))
+        print "thumbnail: " + parser.get_thumbnail(reu[i])
         paraVideo = parser.parse_video_id(url)
-        print parser.create_video_iframe(paraVideo[0], paraVideo[1])
+        print "iframe: " + parser.create_video_iframe(paraVideo[0], paraVideo[1])
         try:
             soup = BeautifulSoup(br.scrap_website(url))
             cat_and_tags = parser.get_tags_and_categories(soup)
-            #print cat_and_tags[0]
             cats = BeautifulSoup(str(cat_and_tags[0]))
-            print htmlscraper.parse_all_href(cats)
-            #print cat_and_tags[1]
+            print "categories: " + parser.extract_categories(htmlscraper.parse_all_href(cats))
             tags = BeautifulSoup(str(cat_and_tags[1]))
-            print htmlscraper.parse_all_href(tags)
+            print "tags: " + parser.extract_categories(htmlscraper.parse_all_href(tags))
         except:
             pass
 
-def scraping_categories(br, htmlscraper, parser, output):
-    print "scraping categories"
-
-
+print "Youporn scraper bot is starting ..."
 br = common.startBrowser.BotBrowser()
 homepage = br.scrap_website('http://www.youporn.com/')
 htmlscraper = common.html_tag_parser.HtmlTagParser(homepage)

@@ -8,21 +8,24 @@ def scraping_homepage(br, htmlscraper, parser, output):
         try:
             print "---------------------" + str(i) + " from " + str(len(videoduration)) + "------------------------"
             title = parser.get_title_on_homepage(videoduration[i])
-            title32 = parser.split_title(str(title))
-            print title32
+            title = parser.split_title(str(title))
+            print "title: " + title
+            title_as_categories = htmlscraper.convert_title_to_categories(title)
+            print "title convert to categories: " + str(title_as_categories)
             url = htmlscraper.parse_href(videoduration[i])
-            print url
+            print "url: " + url
             videoduration1 = parser.get_video_duration_on_categories(videoduration[i])
             thumbnail = parser.get_thumbnail(videoduration[i])
-            print thumbnail
+            print "thumbnail: " + thumbnail
             duration = parser.split_video_duration_on_categories(str(videoduration1))
-            print duration
+            print "duration: " + duration
             video_id = parser.parse_video_id(videoduration[i])
             iframe_object = parser.create_video_iframe(str(video_id[0]))
-            print iframe_object
+            print "iframe: " + iframe_object
             videoPage = br.scrap_website(htmlscraper.parse_href(videoduration[i]))
             soup = BeautifulSoup(videoPage)
-            print parser.parse_tags(htmlscraper.parse_all_href(soup))
+            print "tags: " + parser.parse_tags(htmlscraper.parse_all_href(soup))
+
         except:
             pass
 
@@ -39,24 +42,25 @@ def scraping_categories(br, htmlscraper, parser, output):
                 print "---------------------" + str(j) + " from " + str(len(categoryScrapedContent)) + "------------------------"
                 title = parser.get_title_on_homepage(categoryScrapedContent[j])
                 title32 = parser.split_title(str(title))
-                print title32
+                print "title: " + title32
+                print "title convert to categories: " + htmlscraper.convert_title_to_categories(title32)
                 url = htmlscraper.parse_href(categoryScrapedContent[j])
-                print url
+                print "url: " + url
                 videoduration1 = parser.get_video_duration_on_categories(categoryScrapedContent[j])
                 thumbnail = parser.get_thumbnail(categoryScrapedContent[j])
-                print thumbnail
+                print "thumbnail: " + thumbnail
                 duration = parser.split_video_duration_on_categories(str(videoduration1))
-                print duration
+                print "duration: " + duration
                 video_id = parser.parse_video_id(categoryScrapedContent[j])
                 iframe_object = parser.create_video_iframe(str(video_id[0]))
-                print iframe_object
+                print "iframe: " + iframe_object
                 videoPage = br.scrap_website(htmlscraper.parse_href(categoryScrapedContent[j]))
                 soup = BeautifulSoup(videoPage)
-                print parser.parse_tags(htmlscraper.parse_all_href(soup))
+                print "tags: " + parser.parse_tags(htmlscraper.parse_all_href(soup))
         except:
             pass
 
-
+print "xVideos scraper bot is starting ..."
 br = common.startBrowser.BotBrowser()
 xvideoshomepage = br.scrap_website('http://www.xvideos.com/')
 htmlscraper = common.html_tag_parser.HtmlTagParser(xvideoshomepage)

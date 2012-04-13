@@ -43,6 +43,16 @@ class YoupornParser():
             auxResults.append(tag)
         return auxResults
 
+    def extract_categories(self, output):
+        final_categories = []
+        for i in output:
+            aux = i.split("/")
+            final_categories.append(aux[len(aux) - 2])
+        return final_categories
+
+    def split_url(self, output):
+        aux = output.split("/")
+        return aux[len(aux) - 2]
 
     def parse_video_id(self, output):
         global auxOutput
