@@ -46,8 +46,9 @@ class YoupornParser():
     def extract_categories(self, output):
         final_categories = []
         for i in output:
-            aux = i.split("/")
-            final_categories.append(aux[len(aux) - 2])
+            aux = i
+            if len(aux) > 2:
+                final_categories.append(aux[len(aux) - 2])
         return final_categories
 
     def split_url(self, output):

@@ -35,15 +35,11 @@ class HtmlTagParser():
         return all_href_parsed
 
     def convert_title_to_categories(self, output):
-        title_splitted_into_categories = shlex.split(output)
-        return title_splitted_into_categories
+        return shlex.split(output)
 
     def convert_hypen_into_space(self, output):
-        newString = output.replace('-', ' ').lower()
-        return newString
+        return output.replace('-', ' ').lower()
 
     def convert_string_into_categories(self, output):
-        final_categories = []
-        for i in output:
-            final_categories.append(i)
-        return final_categories
+        output.lower()
+        return output.split(" ")

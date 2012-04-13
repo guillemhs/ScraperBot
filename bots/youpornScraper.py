@@ -14,6 +14,8 @@ def scraping_homepage(br, htmlscraper, parser, output):
         url = "http://www.youporn.com" + htmlscraper.parse_href(reu[i])
         print "url: " + url
         print "url objects: " + htmlscraper.convert_hypen_into_space(parser.split_url(url))
+        strIntoCategories = htmlscraper.convert_hypen_into_space(parser.split_url(url))
+        print htmlscraper.convert_string_into_categories(strIntoCategories)
         print "thumbnail: " + parser.get_thumbnail(reu[i])
         paraVideo = parser.parse_video_id(url)
         print "iframe: " + parser.create_video_iframe(paraVideo[0], paraVideo[1])
