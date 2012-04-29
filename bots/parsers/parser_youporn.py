@@ -1,4 +1,5 @@
 from BeautifulSoup import BeautifulSoup
+import re
 
 class YoupornParser():
     "A youporn simple parser class."
@@ -64,6 +65,31 @@ class YoupornParser():
         print authordiv
         return str(authordiv)
 
+    def getUrlsFromVideos(self, soup, htmlscraper):
+        results = []
+        match = re.compile('(?<=\/watch/)([a-zA-Z0-9_-])+')
+        for link in soup.findAll('a'):
+            try:
+                href = link['href']
+                if re.search(match, href):
+                    final_result = "http://www.youporn.com" + href
+                    results.append(final_result)
+            except KeyError:
+                pass
+        return results
+
+    def getUrlsFromCategories(self, soup, htmlscraper):
+        results = []
+        match = re.compile('(?<=\/category/)([a-zA-Z0-9_-])+')
+        for link in soup.findAll('a'):
+            try:
+                href = link['href']
+                if re.search(match, href):
+                    final_result = "http://www.youporn.com" + href
+                    results.append(final_result)
+            except KeyError:
+                pass
+        return results
 
     def create_video_iframe(self, in1, in2):
         return "<iframe src=\"http://www.youporn.com/embed/" + in1 + "/" + in2 + "/\" frameborder=\'0\' height=\'485\' width=\'615\' scrolling=\'no\' name=\'yp_embed_video\'></iframe>"
