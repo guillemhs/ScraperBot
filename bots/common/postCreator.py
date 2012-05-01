@@ -22,7 +22,7 @@ class PostCreator():
         #user_from_keyboard = enter_WP_user()
         #password_from_keyboard = enter_WP_password()
         print "WP creating post ..."
-        wp = Client('http://www.hottestporn4u.com/xmlrpc.php', 'pornmaster', 'pornmasterpiece')
+        wp = Client('http://localhost/wordpress/xmlrpc.php', 'pornmaster', 'pornmasterpiece')
         post0 = WordPressPost()
         post0.title = title
         print "WP title: " + post0.title

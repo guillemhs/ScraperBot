@@ -8,15 +8,15 @@ class YoupornParser():
         soup = BeautifulSoup(output)
         self.soup = soup
 
-    def get_video_box(self):
+    def get_video_box(self, soup):
         results = []
-        for tag in self.soup.findAll("li", { "class":"videoBox" }):
+        for tag in soup.findAll("li", { "class":"videoBox" }):
             results.append(tag)
         return results
 
-    def get_title(self):
+    def get_title(self, soup):
         results = []
-        for tag in self.soup.findAll("h1"):
+        for tag in soup.findAll("h1"):
             results.append(tag)
         results.pop(0) #remove the tag <h1 class="title">Videos Being Watched Now</h1>
         return results
@@ -37,7 +37,6 @@ class YoupornParser():
 
     def get_tags_and_categories(self, output):
         global auxResults
-        auxResults = []
         for tag in output.findAll("ul", { "class":"listCat" }):
             auxResults.append(tag)
         return auxResults
@@ -61,8 +60,6 @@ class YoupornParser():
 
     def get_duration(self, output):
         authordiv = output.findAll('h2', attrs={'class': 'duration'})
-        print output
-        print authordiv
         return str(authordiv)
 
     def getUrlsFromVideos(self, soup, htmlscraper):
@@ -93,3 +90,16 @@ class YoupornParser():
 
     def create_video_iframe(self, in1, in2):
         return "<iframe src=\"http://www.youporn.com/embed/" + in1 + "/" + in2 + "/\" frameborder=\'0\' height=\'485\' width=\'615\' scrolling=\'no\' name=\'yp_embed_video\'></iframe>"
+
+    def list_has_duplicate_items(self, L):
+        for item in L:
+            if L.count(item) > 1:
+                return True
+        return False
+
+    def get_duplicate_items(self, L):
+        new = set()
+        for item in L:
+            if L.count(item) > 1:
+                new.add(item)
+        return list(new)
