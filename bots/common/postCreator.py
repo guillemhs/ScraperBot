@@ -1,15 +1,26 @@
 import sys
 import os
-from wordpress_xmlrpc.methods.posts import NewPost
+import urllib2
 from wordpress_xmlrpc.base import Client
+import xmlrpclib
+import time
 from wordpress_xmlrpc.wordpress import WordPressPost, WordPressMedia
-from wordpress_xmlrpc.methods.media import UploadFile
+from wordpress_xmlrpc.methods.posts import NewPost
+from wordpress_xmlrpc.methods import media
+
 
 class PostCreator():
 
     def __init__(self):
         homeDirectory = os.getenv("HOME")
         sys.path.append(r"" + homeDirectory + "/ScraperBot" + "")
+
+    def get_url_content(self, url):
+        try:
+            content = urllib2.urlopen(url)
+            return content.read()
+        except:
+            print 'error! NOOOOOO!!!'
 
     def enter_WP_user(self):
         user = raw_input ("WP user >> ")
@@ -24,39 +35,41 @@ class PostCreator():
         #password_from_keyboard = enter_WP_password()
         print "WP creating post ..."
         wp = Client('http://localhost/wordpress/xmlrpc.php', 'pornmaster', 'pornmasterpiece')
-        media = WordPressMedia()
+
         # set to the path to your file
-        filename = '/home/guillem/Escriptori/test.jpg'
+        file_url = thumbnail
+        extension = file_url.split(".")
+        leng = extension.__len__()
+        extension = extension[leng - 1]
+        if (extension == 'jpg'):
+            xfileType = 'image/jpeg'
+        elif(extension == 'png'):
+            xfileType = 'image/png'
+        elif(extension == 'bmp'):
+            xfileType = 'image/bmp'
 
-        # prepare metadata
-        data = {
-                'name': 'picture.jpg',
-                'type': 'image/jpg', # mimetype
-        }
+        file = self.get_url_content(file_url)
+        file = xmlrpclib.Binary(file)
+        server = xmlrpclib.Server('http://localhost/wordpress/xmlrpc.php')
+        filename = "test" + str(time.strftime('%H:%M:%S'))
+        mediarray = {'name':filename + '.' + extension,
+                     'type':xfileType,
+                     'bits':file,
+                     'overwrite':'false'}
+        xarr = ['1', 'pornmaster', 'pornmasterpiece', mediarray]
+        result = server.wp.uploadFile(xarr)
+        print result
 
-        # read the binary file and let the XMLRPC library encode it into base64
-        with open(filename, 'rb') as img:
-                data['bits'] = wp.Binary(img.read())
-
-        response = wp.call(media.UploadFile(data))
-        # response == {
-        #       'id': 6,
-        #       'file': 'picture.jpg'
-        #       'url': 'http://www.example.com/wp-content/uploads/2012/04/16/picture.jpg',
-        #       'type': 'image/jpg',
-        # }
-        attachment_id = response['id']
 
         post0 = WordPressPost()
         post0.title = title
         print "WP title: " + post0.title
-        post0.description = iframe + "<br><img src=" + thumbnail + " alt=" + title + "><br>Duration " + videoduration
+        post0.description = "<img src=" + thumbnail + " alt=" + title + "><br>" + iframe + "Duration " + videoduration
         print "WP description: " + post0.description
         post0.tags = tags
         print "WP categories: " + post0.tags
         post0.categories = categories
         print "WP tags: " + post0.categories
-        post0.date_created = '20120415T12:11:59'
+        post0.date_created = '20120503T12:11:59'
         print "WP Date: " + post0.date_created
-        post0.post_thumbnail = attachment_id
         wp.call(NewPost(post0, True))
