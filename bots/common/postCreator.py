@@ -4,9 +4,9 @@ import urllib2
 from wordpress_xmlrpc.base import Client
 import xmlrpclib
 import time
-from wordpress_xmlrpc.wordpress import WordPressPost, WordPressMedia
+from wordpress_xmlrpc.wordpress import WordPressPost
 from wordpress_xmlrpc.methods.posts import NewPost
-from wordpress_xmlrpc.methods import media
+
 
 
 class PostCreator():
@@ -36,6 +36,7 @@ class PostCreator():
         print "WP creating post ..."
         wp = Client('http://localhost/wordpress/xmlrpc.php', 'pornmaster', 'pornmasterpiece')
 
+        print "Client connected ..."
         # set to the path to your file
         file_url = thumbnail
         extension = file_url.split(".")
@@ -51,7 +52,7 @@ class PostCreator():
         file = self.get_url_content(file_url)
         file = xmlrpclib.Binary(file)
         server = xmlrpclib.Server('http://localhost/wordpress/xmlrpc.php')
-        filename = "test" + str(time.strftime('%H:%M:%S'))
+        filename = str(time.strftime('%H:%M:%S'))
         mediarray = {'name':filename + '.' + extension,
                      'type':xfileType,
                      'bits':file,
