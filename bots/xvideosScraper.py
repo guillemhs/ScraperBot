@@ -32,12 +32,12 @@ class xVideosScraper():
                 video_id = parser.parse_video_id(videoduration[i])
                 iframe_object = parser.create_video_iframe(str(video_id[0]))
                 print "iframe: " + iframe_object
-                videoPage = br.scrap_website(htmlscraper.parse_href(videoduration[i]))
-                soup = BeautifulSoup(videoPage)
-                print "tags: " + parser.parse_tags(htmlscraper.parse_all_href(soup))
-                tags = parser.parse_tags(htmlscraper.parse_all_href(soup))
+                #videoPage = br.scrap_website(htmlscraper.parse_href(videoduration[i]))
+                #soup = BeautifulSoup(videoPage)
+                #print "tags: " + parser.parse_tags(htmlscraper.parse_all_href(soup))
+                #tags = parser.parse_tags(htmlscraper.parse_all_href(soup))
                 print "Wordpress post creator starting ..."
-                wpPost.createPost(title, thumbnail, iframe_object, duration, tags, tags)
+                wpPost.createPost(title, thumbnail, iframe_object, duration, title_as_categories, title_as_categories)
                 print "Scraped video [OK]"
             except:
                 pass
@@ -69,12 +69,12 @@ class xVideosScraper():
                     video_id = parser.parse_video_id(videoduration[i])
                     iframe_object = parser.create_video_iframe(str(video_id[0]))
                     print "iframe: " + iframe_object
-                    videoPage = br.scrap_website(htmlscraper.parse_href(videoduration[i]))
-                    soup = BeautifulSoup(videoPage)
-                    print "tags: " + parser.parse_tags(htmlscraper.parse_all_href(soup))
-                    tags = parser.parse_tags(htmlscraper.parse_all_href(soup))
+                    #videoPage = br.scrap_website(htmlscraper.parse_href(videoduration[i]))
+                    #soup = BeautifulSoup(videoPage)
+                    #print "tags: " + parser.parse_tags(htmlscraper.parse_all_href(soup))
+                    #tags = parser.parse_tags(htmlscraper.parse_all_href(soup))
                     print "Wordpress post creator starting ..."
-                    wpPost.createPost(title, thumbnail, iframe_object, duration, tags, tags)
+                    wpPost.createPost(title, thumbnail, iframe_object, duration, title_as_categories, title_as_categories)
                     print "Scraped video [OK]"
                 except:
                     pass

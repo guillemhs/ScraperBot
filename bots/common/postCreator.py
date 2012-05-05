@@ -30,12 +30,7 @@ class PostCreator():
         password = raw_input ("WP password >> ")
         return password
 
-    def createPost(self, title, thumbnail, iframe, videoduration, categories, tags):
-        #user_from_keyboard = enter_WP_user()
-        #password_from_keyboard = enter_WP_password()
-        print "WP creating post ..."
-        wp = Client('http://localhost/wordpress/xmlrpc.php', 'pornmaster', 'pornmasterpiece')
-
+    def uploadFileToWp(self, thumbnail):
         print "Client connected ..."
         # set to the path to your file
         file_url = thumbnail
@@ -62,10 +57,16 @@ class PostCreator():
         print result
 
 
+    def createPost(self, title, thumbnail, iframe, videoduration, categories, tags):
+        #user_from_keyboard = enter_WP_user()
+        #password_from_keyboard = enter_WP_password()
+        print "WP creating post ..."
+        wp = Client('http://localhost/wordpress/xmlrpc.php', 'pornmaster', 'pornmasterpiece')
+
         post0 = WordPressPost()
         post0.title = title
         print "WP title: " + post0.title
-        post0.description = "<img src=" + thumbnail + " alt=" + title + "><br>" + iframe + "Duration " + videoduration
+        post0.description = iframe + "Duration <img src=" + thumbnail + " alt=" + title + "><br>" + videoduration
         print "WP description: " + post0.description
         post0.tags = tags
         print "WP categories: " + post0.tags
