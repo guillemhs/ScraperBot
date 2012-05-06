@@ -4,10 +4,11 @@ import urllib2
 from wordpress_xmlrpc.base import Client
 import xmlrpclib
 import time
-from wordpress_xmlrpc.wordpress import WordPressPost
+from wordpress_xmlrpc.wordpress import WordPressPost, WordPressCategory
 from wordpress_xmlrpc.methods.posts import NewPost, GetRecentPosts
 import datetime
 from Crypto.Random.random import randrange
+from wordpress_xmlrpc.methods.categories import NewCategory, SetPostCategories
 
 class PostCreator():
 
@@ -75,15 +76,22 @@ class PostCreator():
         print "WP title: " + post0.title
         post0.description = iframe + "Duration <img src=" + thumbnail + " alt=" + title + "><br>" + videoduration
         print "WP description: " + post0.description
-        post0.tags = tags
-        print "WP categories: " + post0.tags
-        post0.categories = categories
-        print "WP tags: " + post0.categories
+        #post0.tags = tags
+        #print "WP tags: " + post0.tags
+        #post0.categories = categories
+        #print "WP categories: " + post0.categories
+        #self.set_post_categories(post0.categories)
         dateFormat = self.prepare_post_date()
-        #Date format to post "20120503T12:11:59"
         post0.date_created = dateFormat
         print "WP Date: " + post0.date_created
         wp.call(NewPost(post0, True))
+
+    def set_post_categories(self, categories, wp):
+        self.connect_the_client()
+        new_category232 = WordPressCategory()
+        new_category232.name = 'young'
+        new_category232.cat_id = wp.call(NewCategory(new_category232))
+        wp.call(SetPostCategories(5, [new_category232.struct]))
 
     def prepare_post_date(self):
         print "prepare post date"

@@ -87,7 +87,7 @@ class YouPornScraper():
                 print "video duration: " + video_duration
                 print "Wordpress post creator starting ..."
                 print "Scraped video [OK]"
-                #wpPost.createPost(title, thumbnail, iframe, video_duration, cat, tag)
+                wpPost.createPost(title, thumbnail, iframe, video_duration, cat, tag)
             except:
                 pass
 

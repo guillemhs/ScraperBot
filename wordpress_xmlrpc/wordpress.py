@@ -238,3 +238,31 @@ class WordPressPostType(WordPressBase):
 
     def __str__(self):
         return self.label
+
+class WordPressCategory(WordPressBase):
+    definition = {
+        'cat_id': 'categoryId',
+        'parent_id': FieldMap('parentId', ['parentId', 'parent_id']),
+        'name': FieldMap('categoryName', ['categoryName', 'name']),
+        'description': 'categoryDescription',
+        'url': 'htmlUrl',
+        'rss': 'rssUrl',
+    }
+
+    def __str__(self):
+        return self.name
+
+
+class WordPressTag(WordPressBase):
+    definition = {
+        'tag_id': 'tag_id',
+        'name': 'name',
+        'count': 'count',
+        'slug': 'slug',
+        'url': 'html_url',
+        'rss': 'rss_url',
+    }
+
+    def __str__(self):
+        return self.name
+
