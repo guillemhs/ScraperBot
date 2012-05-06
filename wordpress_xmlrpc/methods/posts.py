@@ -11,16 +11,49 @@ class GetPosts(AuthenticatedMethod):
             * `number`
             * `offset`
             * `orderby`
-            * `order`: 'ASC' or 'DESC'
+            * `order`: 'ASC' or 'DESC'a
             * `post_type`: Defaults to 'post'
             * `post_status`
 
     Returns: `list` of :class:`WordPressPost` instances.
     """
     method_name = 'wp.getPosts'
-    optional_args = ('filter', 'fields')
+    method_args = ('number')
+    #optional_args = ('filter', 'fields')
     results_class = WordPressPost
 
+class GetRecentPosts(AuthenticatedMethod):
+    """
+    Retrieve most recent posts from the blog.
+
+    Parameters:
+        `num_posts`: Number of blog posts to return.
+
+    Returns: `list` of `WordPressPost` instances.
+    """
+    method_name = 'metaWeblog.getRecentPosts'
+    method_args = ('num_posts',)
+    results_class = WordPressPost
+
+class GetPostsList(AuthenticatedMethod):
+    """
+    Retrieve posts from the blog.
+
+    Parameters:
+       `filter`: optional `dict` of filters:
+            * `number`
+            * `offset`
+            * `orderby`
+            * `order`: 'ASC' or 'DESC'
+            * `post_type`: Defaults to 'post'
+            * `post_status`
+
+    Returns: `list` of :class:`WordPressPost` instances.
+    """
+
+    method_name = 'wp.getPosts'
+    method_args = ('number',)
+    results_class = WordPressPost
 
 class GetPost(AuthenticatedMethod):
     """
@@ -74,7 +107,7 @@ class DeletePost(AuthenticatedMethod):
     Returns: `True` on successful deletion.
     """
     method_name = 'wp.deletePost'
-    method_args = ('post_id', )
+    method_args = ('post_id',)
 
 
 class GetPostStatusList(AuthenticatedMethod):

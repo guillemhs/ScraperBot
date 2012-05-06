@@ -12,30 +12,35 @@ class YouPornScraper():
         sys.path.append(r"" + homeDirectory + "/ScraperBot" + "")
 
     def scrape_videos(self, br, htmlscraper, parser, wpPost, videoUrls):
+        postList = wpPost.get_posts(150)
+
         for i in range(len(videoUrls)):
             try:
                 print "---------------------" + str(i) + " from " + str(len(videoUrls)) + "------------------------"
                 soup = BeautifulSoup(br.scrap_website(videoUrls[i]))
                 title = htmlscraper.convert_hypen_into_space(parser.split_url(videoUrls[i]))
-                print " Video scraping started ..."
+                print "Video scraping started ..."
                 print "title: " + htmlscraper.uppercase_first_letter_from_string(title)
-                title_as_categories = htmlscraper.convert_title_to_categories(str(title))
-                print "title convert to categories: " + str(title_as_categories)
-                url = videoUrls[i]
-                print "url: " + url
-                print "url objects: " + htmlscraper.convert_hypen_into_space(parser.split_url(url))
-                strIntoCategories = htmlscraper.convert_hypen_into_space(parser.split_url(url))
-                print htmlscraper.convert_string_into_categories(strIntoCategories)
-                thumbnail = parser.get_thumbnail(soup)
-                print "thumbnail: " + thumbnail
-                paraVideo = parser.parse_video_id(videoUrls[i])
-                iframe = parser.create_video_iframe(paraVideo[0], paraVideo[1])
-                print "iframe: " + iframe
-                video_duration = parser.get_duration(soup)
-                print "video duration: " + video_duration
-                print "Wordpress post creator starting ..."
-                wpPost.createPost(title, thumbnail, iframe, video_duration, title_as_categories, title_as_categories)
-                print "Scraped video [OK]"
+                if (wpPost.is_this_item_on_the_list(title, postList)):
+                    print "Content already posted"
+                else:
+                    title_as_categories = htmlscraper.convert_title_to_categories(str(title))
+                    print "title convert to categories: " + str(title_as_categories)
+                    url = videoUrls[i]
+                    print "url: " + url
+                    print "url objects: " + htmlscraper.convert_hypen_into_space(parser.split_url(url))
+                    strIntoCategories = htmlscraper.convert_hypen_into_space(parser.split_url(url))
+                    print htmlscraper.convert_string_into_categories(strIntoCategories)
+                    thumbnail = parser.get_thumbnail(soup)
+                    print "thumbnail: " + thumbnail
+                    paraVideo = parser.parse_video_id(videoUrls[i])
+                    iframe = parser.create_video_iframe(paraVideo[0], paraVideo[1])
+                    print "iframe: " + iframe
+                    video_duration = parser.get_duration(soup)
+                    print "video duration: " + video_duration
+                    print "Wordpress post creator starting ..."
+                    wpPost.createPost(title, thumbnail, iframe, video_duration, title_as_categories, title_as_categories)
+                    print "Scraped video [OK]"
             except:
                 pass
 
@@ -57,6 +62,7 @@ class YouPornScraper():
                 title = htmlscraper.convert_hypen_into_space(parser.split_url(htmlscraper.parse_href(reu[i])))
                 print " Scraping started ..."
                 print "title: " + htmlscraper.uppercase_first_letter_from_string(title)
+
                 title_as_categories = htmlscraper.convert_title_to_categories(str(title))
                 print "title convert to categories: " + str(title_as_categories)
                 url = "http://www.youporn.com" + htmlscraper.parse_href(reu[i])
@@ -80,8 +86,8 @@ class YouPornScraper():
                 video_duration = parser.get_duration(soup)
                 print "video duration: " + video_duration
                 print "Wordpress post creator starting ..."
-                wpPost.createPost(title, thumbnail, iframe, video_duration, cat, tag)
                 print "Scraped video [OK]"
+                #wpPost.createPost(title, thumbnail, iframe, video_duration, cat, tag)
             except:
                 pass
 
