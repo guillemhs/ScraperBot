@@ -16,6 +16,7 @@ class PostCreator():
         homeDirectory = os.getenv("HOME")
         sys.path.append(r"" + homeDirectory + "/ScraperBot" + "")
         self.wp_site = "http://localhost/wordpress/xmlrpc.php"
+        #self.wp_site = "http://www.hottestporn4u.com/xmlrpc.php"
         self.login = "pornmaster"
         self.password = "pornmasterpiece"
 
@@ -76,22 +77,19 @@ class PostCreator():
         print "WP title: " + post0.title
         post0.description = iframe + "Duration <img src=" + thumbnail + " alt=" + title + "><br>" + videoduration
         print "WP description: " + post0.description
-        #post0.tags = tags
-        #print "WP tags: " + post0.tags
-        #post0.categories = categories
-        #print "WP categories: " + post0.categories
-        #self.set_post_categories(post0.categories)
+        #Categories and tags correct
+        #post0.categories = ['amateur', 'american', 'anal', 'blonde']
+        #post0.tags = ['amateur', 'american', 'anal', 'blonde']
+        print "WP categories: " + categories
+        print "WP tags: " + tags
+        post0.categories = categories
+        post0.tags = tags
         dateFormat = self.prepare_post_date()
-        post0.date_created = dateFormat
+        post0.date_created = str(dateFormat)
+        print dateFormat
+        #post0.date_created = '20120507T12:11:59'
         print "WP Date: " + post0.date_created
         wp.call(NewPost(post0, True))
-
-    def set_post_categories(self, categories, wp):
-        self.connect_the_client()
-        new_category232 = WordPressCategory()
-        new_category232.name = 'young'
-        new_category232.cat_id = wp.call(NewCategory(new_category232))
-        wp.call(SetPostCategories(5, [new_category232.struct]))
 
     def prepare_post_date(self):
         print "prepare post date"
