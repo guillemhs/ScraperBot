@@ -74,16 +74,19 @@ class PostCreator():
 
         post0 = WordPressPost()
         post0.title = title
+        splitted = title.split(" ")
+        for i in splitted:
+            print i
         print "WP title: " + post0.title
         post0.description = iframe + "Duration <img src=" + thumbnail + " alt=" + title + "><br>" + videoduration
         print "WP description: " + post0.description
         #Categories and tags correct
-        #post0.categories = ['amateur', 'american', 'anal', 'blonde']
-        #post0.tags = ['amateur', 'american', 'anal', 'blonde']
-        print "WP categories: " + categories
+        #post0.categories = ['latest updates', 'new', 'amateur', 'american', 'anal', 'blonde', 'sex', 'fuck', 'girls', 'porn', 'pornstar']
+        #post0.tags = ['latest updates', 'new', 'amateur', 'american', 'anal', 'blonde', 'sex', 'fuck', 'girls', 'porn', 'pornstar']
+        print "WP categories: " + str(categories)
         print "WP tags: " + tags
-        post0.categories = categories
-        post0.tags = tags
+        post0.categories = title.split(" ")
+        post0.tags = title.split(" ")
         dateFormat = self.prepare_post_date()
         post0.date_created = str(dateFormat)
         print dateFormat
@@ -128,10 +131,3 @@ class PostCreator():
         post0 = WordPressPost()
         post0 = wp.call(GetRecentPosts(number_of_posts))
         return post0
-
-    def is_this_item_on_the_list(self, item, list):
-        for element in list:
-            if str(element) == str(item):
-                return True
-            else:
-                return False

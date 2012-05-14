@@ -36,13 +36,15 @@ class HtmlTagParser():
 
     def convert_title_to_categories(self, output):
         auxString = shlex.split(output)
-        return str(auxString).lower()
+        categories = []
+        for i in auxString:
+            categories.append(str(i.lower()))
+        return categories
 
     def convert_hypen_into_space(self, output):
         return output.replace('-', ' ').lower()
 
     def convert_string_into_categories(self, output):
-        output.lower()
         return output.split(" ")
 
     def uppercase_first_letter_from_string(self, output):

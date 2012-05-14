@@ -24,8 +24,9 @@ class xVideosScraper():
                 if (wpPost.is_this_item_on_the_list(title, postList)):
                     print "Content already posted"
                 else:
-                    title_as_categories = htmlscraper.convert_title_to_categories(title)
-                    print "title convert to categories: " + title_as_categories
+                    title_as_categories = htmlscraper.convert_hypen_into_space(title)
+                    categories = htmlscraper.convert_string_into_categories(title_as_categories)
+                    print "title convert to categories: " + str(categories)
                     url = htmlscraper.parse_href(videoduration[i])
                     print "url: " + url
                     videoduration1 = parser.get_video_duration(videoduration[i])
@@ -41,7 +42,7 @@ class xVideosScraper():
                     #print "tags: " + parser.parse_tags(htmlscraper.parse_all_href(soup))
                     #tags = parser.parse_tags(htmlscraper.parse_all_href(soup))
                     print "Wordpress post creator starting ..."
-                    wpPost.createPost(title, thumbnail, iframe_object, duration, title_as_categories, title_as_categories)
+                    wpPost.createPost(title, thumbnail, iframe_object, duration, str(categories), str(categories))
                     print "Scraped video [OK]"
             except:
                 pass
@@ -65,7 +66,10 @@ class xVideosScraper():
                     if (wpPost.is_this_item_on_the_list(title, postList)):
                         print "Content already posted"
                     else:
-                        title_as_categories = htmlscraper.convert_title_to_categories(title)
+                        title_as_categories = htmlscraper.convert_hypen_into_space(title)
+                        categories = htmlscraper.convert_string_into_categories(title_as_categories)
+                        print "cats" + categories
+                        title_as_categories = htmlscraper.convert_title_to_categories(title_as_categories)
                         print "title convert to categories: " + title_as_categories
                         url = htmlscraper.parse_href(videoduration[i])
                         print "url: " + url
@@ -97,7 +101,7 @@ class xVideosScraper():
         wpPost = common.postCreator.PostCreator()
         scraper = xVideosScraper()
         scraper.scraping_homepage(br, htmlscraper, parser, wpPost, xvideoshomepage)
-        scraper.scraping_categories(br, htmlscraper, parser, wpPost, xvideoshomepage)
+        #scraper.scraping_categories(br, htmlscraper, parser, wpPost, xvideoshomepage)
         print "Scraping finished"
 
 xVideosScraper().main()
