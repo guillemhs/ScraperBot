@@ -4,15 +4,17 @@ from BeautifulSoup import BeautifulSoup
 import common.postCreator
 import sys
 import os
+from common.dataHandler import DataHandler
 
 class xVideosScraper():
 
     def __init__(self):
         homeDirectory = os.getenv("HOME")
         sys.path.append(r"" + homeDirectory + "/ScraperBot" + "")
+        self.dataHandler = DataHandler()
 
     def scraping_homepage(self, br, htmlscraper, parser, wpPost, output):
-        postList = wpPost.get_posts(150)
+        postList = wpPost.get_posts(1500)
         videoduration = parser.get_video_td()
         for i in range(len(videoduration)):
             try:
@@ -21,7 +23,7 @@ class xVideosScraper():
                 title = parser.get_title_on_homepage(videoduration[i])
                 title = parser.split_title(str(title))
                 print "title: " + title
-                if (wpPost.is_this_item_on_the_list(title, postList)):
+                if (self.dataHandler.is_this_item_on_the_list(title, postList)):
                     print "Content already posted"
                 else:
                     title_as_categories = htmlscraper.convert_hypen_into_space(title)
@@ -42,7 +44,8 @@ class xVideosScraper():
                     #print "tags: " + parser.parse_tags(htmlscraper.parse_all_href(soup))
                     #tags = parser.parse_tags(htmlscraper.parse_all_href(soup))
                     print "Wordpress post creator starting ..."
-                    wpPost.createPost(title, thumbnail, iframe_object, duration, str(categories), str(categories))
+                    tags = htmlscraper.convert_title_to_categories(str(title))
+                    wpPost.createPost(title, thumbnail, iframe_object, duration, tags)
                     print "Scraped video [OK]"
             except:
                 pass
@@ -63,7 +66,7 @@ class xVideosScraper():
                     title = parser.get_title_on_homepage(videoduration[i])
                     title = parser.split_title(str(title))
                     print "title: " + title
-                    if (wpPost.is_this_item_on_the_list(title, postList)):
+                    if (self.dataHandler.is_this_item_on_the_list(title, postList)):
                         print "Content already posted"
                     else:
                         title_as_categories = htmlscraper.convert_hypen_into_space(title)
@@ -86,7 +89,8 @@ class xVideosScraper():
                         #print "tags: " + parser.parse_tags(htmlscraper.parse_all_href(soup))
                         #tags = parser.parse_tags(htmlscraper.parse_all_href(soup))
                         print "Wordpress post creator starting ..."
-                        wpPost.createPost(title, thumbnail, iframe_object, duration, title_as_categories, title_as_categories)
+                        tags = htmlscraper.convert_title_to_categories(str(title))
+                        wpPost.createPost(title, thumbnail, iframe_object, duration, tags)
                         print "Scraped video [OK]"
                 except:
                     pass

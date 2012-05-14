@@ -4,21 +4,23 @@ import urllib2
 from wordpress_xmlrpc.base import Client
 import xmlrpclib
 import time
-from wordpress_xmlrpc.wordpress import WordPressPost, WordPressCategory
+from wordpress_xmlrpc.wordpress import WordPressPost
 from wordpress_xmlrpc.methods.posts import NewPost, GetRecentPosts
 import datetime
 from Crypto.Random.random import randrange
-from wordpress_xmlrpc.methods.categories import NewCategory, SetPostCategories
+import dataHandler
 
 class PostCreator():
 
     def __init__(self):
         homeDirectory = os.getenv("HOME")
         sys.path.append(r"" + homeDirectory + "/ScraperBot" + "")
-        self.wp_site = "http://localhost/wordpress/xmlrpc.php"
-        #self.wp_site = "http://www.hottestporn4u.com/xmlrpc.php"
+        #self.wp_site = "http://localhost/wordpress/xmlrpc.php"
+        self.wp_site = "http://www.hottestporn4u.com/xmlrpc.php"
         self.login = "pornmaster"
         self.password = "pornmasterpiece"
+        self.dataHandler = dataHandler.DataHandler()
+        self.categoriesList = self.dataHandler.read_categories()
 
     def connect_the_client(self):
         wp = Client(self.wp_site, self.login, self.password)
@@ -65,7 +67,7 @@ class PostCreator():
         result = server.wp.uploadFile(xarr)
         print result
 
-    def createPost(self, title, thumbnail, iframe, videoduration, categories, tags):
+    def createPost(self, title, thumbnail, iframe, videoduration, tags):
         #user_from_keyboard = enter_WP_user()
         #password_from_keyboard = enter_WP_password()
         print "WP creating post ..."
@@ -74,24 +76,19 @@ class PostCreator():
 
         post0 = WordPressPost()
         post0.title = title
-        splitted = title.split(" ")
-        for i in splitted:
-            print i
         print "WP title: " + post0.title
         post0.description = iframe + "Duration <img src=" + thumbnail + " alt=" + title + "><br>" + videoduration
         print "WP description: " + post0.description
         #Categories and tags correct
         #post0.categories = ['latest updates', 'new', 'amateur', 'american', 'anal', 'blonde', 'sex', 'fuck', 'girls', 'porn', 'pornstar']
         #post0.tags = ['latest updates', 'new', 'amateur', 'american', 'anal', 'blonde', 'sex', 'fuck', 'girls', 'porn', 'pornstar']
-        print "WP categories: " + str(categories)
-        print "WP tags: " + tags
-        post0.categories = title.split(" ")
-        post0.tags = title.split(" ")
+        post0.categories = self.dataHandler.prepare_categories_for_post(tags, self.categoriesList)
+        post0.tags = self.dataHandler.prepare_tags_for_post(tags)
         dateFormat = self.prepare_post_date()
         post0.date_created = str(dateFormat)
-        print dateFormat
+        #print dateFormat
         #post0.date_created = '20120507T12:11:59'
-        print "WP Date: " + post0.date_created
+        #print "WP Date: " + post0.date_created
         wp.call(NewPost(post0, True))
 
     def prepare_post_date(self):
