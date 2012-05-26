@@ -59,10 +59,26 @@ class YoupornParser():
         return auxOutput
 
     def get_duration(self, output):
-        authordiv = output.findAll('h2', attrs={'class': 'duration'})
-        return str(authordiv)
+        i = 0
+        for ul in output.findAll('ul', attrs={'class': 'spaced'}):
+            liSoup = BeautifulSoup(str(ul))
+            for li in liSoup.findAll('li'):
+                i = i + 1
+                if i == 2:
+                    line = str(li)
+                    lin = line.split('>')
+                    duration = lin[3].split('<')
+        return str(duration[0])
+    def prepare_duration_for_snippets(self, duration):
+        #format T30M00S
+        min = duration.split('min')
+        minute = str(min[0]).strip()
+        sec = min[1].split('sec')
+        second = str(sec[0]).strip()
+        newDuration = "T" + minute + "M" + second + "S"
+        return newDuration
 
-    def getUrlsFromVideos(self, soup, htmlscraper):
+    def getUrlsFromVideos(self, soup):
         results = []
         match = re.compile('(?<=\/watch/)([a-zA-Z0-9_-])+')
         for link in soup.findAll('a'):
@@ -75,7 +91,7 @@ class YoupornParser():
                 pass
         return results
 
-    def getUrlsFromCategories(self, soup, htmlscraper):
+    def getUrlsFromCategories(self, soup):
         results = []
         match = re.compile('(?<=\/category/)([a-zA-Z0-9_-])+')
         for link in soup.findAll('a'):

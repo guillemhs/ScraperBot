@@ -34,8 +34,12 @@ class YouPornScraper():
                     print "iframe: " + iframe
                     video_duration = parser.get_duration(soup)
                     print "video duration: " + video_duration
+                    embedurl = htmlscraper.parse_src_from_video_iframe(iframe)
+                    print "embedurl " + embedurl
+                    duration_for_snippets = parser.prepare_duration_for_snippets(video_duration)
+                    print "duration for snippets: " + duration_for_snippets
                     print "Wordpress post creator starting ..."
-                    wpPost.createPost(title, thumbnail, iframe, video_duration, tags)
+                    wpPost.createPost(title, thumbnail, iframe, video_duration, duration_for_snippets, tags, embedurl)
                     print "Scraped video [OK]"
             except:
                 pass
@@ -44,7 +48,7 @@ class YouPornScraper():
         print "scraping videos from categories"
         for i in range(len(categoryUrls)):
             soup = BeautifulSoup(br.scrap_website(categoryUrls[i]))
-            totalUrlsVideos = parser.getUrlsFromVideos(soup, htmlscraper)
+            totalUrlsVideos = parser.getUrlsFromVideos(soup)
             totalUrlsVideos = list(set(totalUrlsVideos))
             scraper.scrape_videos(br, htmlscraper, parser, wpPost, totalUrlsVideos)
 
@@ -57,8 +61,8 @@ class YouPornScraper():
         wpPost = common.postCreator.PostCreator()
         scraper = YouPornScraper()
         soup = BeautifulSoup(homepage)
-        totalUrlsVideos = parser.getUrlsFromVideos(soup, htmlscraper)
-        totalUrlsCategories = parser.getUrlsFromCategories(soup, htmlscraper)
+        totalUrlsVideos = parser.getUrlsFromVideos(soup)
+        totalUrlsCategories = parser.getUrlsFromCategories(soup)
         totalUrlsVideos = list(set(totalUrlsVideos))
         totalUrlsCategories = list(set(totalUrlsCategories))
         scraper.scrape_videos(br, htmlscraper, parser, wpPost, totalUrlsVideos)

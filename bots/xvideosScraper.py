@@ -13,99 +13,63 @@ class xVideosScraper():
         sys.path.append(r"" + homeDirectory + "/ScraperBot" + "")
         self.dataHandler = DataHandler()
 
-    def scraping_homepage(self, br, htmlscraper, parser, wpPost, output):
+    def scrape_videos(self, br, htmlscraper, parser, wpPost, videoUrls):
         postList = wpPost.get_posts(1500)
-        videoduration = parser.get_video_td()
-        for i in range(len(videoduration)):
+        for i in range(len(videoUrls)):
             try:
-                print "---------------------" + str(i) + " from " + str(len(videoduration)) + "------------------------"
-                print "Scraping started ..."
-                title = parser.get_title_on_homepage(videoduration[i])
-                title = parser.split_title(str(title))
-                print "title: " + title
+                print "---------------------" + str(i) + " from " + str(len(videoUrls)) + "------------------------"
+                title = htmlscraper.convert_underscore_into_space(parser.split_url(videoUrls[i]))
+                print "title: " + htmlscraper.uppercase_first_letter_from_string(title)
                 if (self.dataHandler.is_this_item_on_the_list(title, postList)):
                     print "Content already posted"
                 else:
+                    print "url " + videoUrls[i]
                     title_as_categories = htmlscraper.convert_hypen_into_space(title)
                     categories = htmlscraper.convert_string_into_categories(title_as_categories)
                     print "title convert to categories: " + str(categories)
-                    url = htmlscraper.parse_href(videoduration[i])
-                    print "url: " + url
-                    videoduration1 = parser.get_video_duration(videoduration[i])
-                    thumbnail = parser.get_thumbnail(videoduration[i])
+                    soup = BeautifulSoup(br.scrap_website(videoUrls[i]))
+                    print "video page scraped "
+                    duration = parser.get_video_duration(soup)
+                    duration_for_snippets = parser.prepare_duration_for_snippets(duration)
+                    print "duration for snippets: " + duration_for_snippets
+                    duration = duration + "min"
+                    print "duration " + duration
+                    thumbnail = parser.get_thumbnail(soup)
                     print "thumbnail: " + thumbnail
-                    duration = parser.split_video_duration(str(videoduration1))
-                    print "duration: " + duration
-                    video_id = parser.parse_video_id(videoduration[i])
-                    iframe_object = parser.create_video_iframe(str(video_id[0]))
+                    video_id = parser.get_video_id(videoUrls[i])
+                    iframe_object = parser.create_video_iframe(video_id)
                     print "iframe: " + iframe_object
-                    #videoPage = br.scrap_website(htmlscraper.parse_href(videoduration[i]))
-                    #soup = BeautifulSoup(videoPage)
-                    #print "tags: " + parser.parse_tags(htmlscraper.parse_all_href(soup))
-                    #tags = parser.parse_tags(htmlscraper.parse_all_href(soup))
+                    embedurl = htmlscraper.parse_src_from_video_iframe(iframe_object)
+                    print "embedurl " + embedurl
                     print "Wordpress post creator starting ..."
-                    tags = htmlscraper.convert_title_to_categories(str(title))
-                    wpPost.createPost(title, thumbnail, iframe_object, duration, tags)
+                    wpPost.createPost(title, thumbnail, iframe_object, duration, duration_for_snippets, categories, embedurl)
                     print "Scraped video [OK]"
             except:
                 pass
 
-    def scraping_categories(self, br, htmlscraper, parser, wpPost, output):
-        postList = wpPost.get_posts(150)
-        parser = parsers.parser_xvideos.XvideosParser(output)
-        categories = parser.parse_categories(output)
-        for j in categories:
-            print "Parsing " + j + " ... "
-            xvideoscategory = br.scrap_website(j)
-            soup = BeautifulSoup(xvideoscategory)
-            videoduration = parser.get_video_td_from_categories(soup)
-            for i in range(len(videoduration)):
-                try:
-                    print "---------------------" + str(i) + " from " + str(len(videoduration)) + "------------------------"
-                    print "Scraping started ..."
-                    title = parser.get_title_on_homepage(videoduration[i])
-                    title = parser.split_title(str(title))
-                    print "title: " + title
-                    if (self.dataHandler.is_this_item_on_the_list(title, postList)):
-                        print "Content already posted"
-                    else:
-                        title_as_categories = htmlscraper.convert_hypen_into_space(title)
-                        categories = htmlscraper.convert_string_into_categories(title_as_categories)
-                        print "cats" + categories
-                        title_as_categories = htmlscraper.convert_title_to_categories(title_as_categories)
-                        print "title convert to categories: " + title_as_categories
-                        url = htmlscraper.parse_href(videoduration[i])
-                        print "url: " + url
-                        videoduration1 = parser.get_video_duration_on_categories(videoduration[i])
-                        thumbnail = parser.get_thumbnail(videoduration[i])
-                        print "thumbnail: " + thumbnail
-                        duration = parser.split_video_duration_on_categories(str(videoduration1))
-                        print "duration: " + duration
-                        video_id = parser.parse_video_id(videoduration[i])
-                        iframe_object = parser.create_video_iframe(str(video_id[0]))
-                        print "iframe: " + iframe_object
-                        #videoPage = br.scrap_website(htmlscraper.parse_href(videoduration[i]))
-                        #soup = BeautifulSoup(videoPage)
-                        #print "tags: " + parser.parse_tags(htmlscraper.parse_all_href(soup))
-                        #tags = parser.parse_tags(htmlscraper.parse_all_href(soup))
-                        print "Wordpress post creator starting ..."
-                        tags = htmlscraper.convert_title_to_categories(str(title))
-                        wpPost.createPost(title, thumbnail, iframe_object, duration, tags)
-                        print "Scraped video [OK]"
-                except:
-                    pass
-
+    def scrape_from_category(self, br, htmlscraper, parser, wpPost, categoryUrls, scraper):
+        print "scraping videos from categories"
+        for i in range(len(categoryUrls)):
+            soup = BeautifulSoup(br.scrap_website(categoryUrls[i]))
+            totalUrlsVideos = parser.getUrlsFromVideos(soup)
+            totalUrlsVideos = list(set(totalUrlsVideos))
+            scraper.scrape_videos(br, htmlscraper, parser, wpPost, totalUrlsVideos)
 
     def main(self):
         print "xVideos scraper bot is starting ..."
         br = common.startBrowser.BotBrowser()
-        xvideoshomepage = br.scrap_website('http://www.xvideos.com/')
-        htmlscraper = common.html_tag_parser.HtmlTagParser(xvideoshomepage)
-        parser = parsers.parser_xvideos.XvideosParser(xvideoshomepage)
+        homepage = br.scrap_website('http://www.xvideos.com/')
+        htmlscraper = common.html_tag_parser.HtmlTagParser(homepage)
+        parser = parsers.parser_xvideos.XvideosParser(homepage)
         wpPost = common.postCreator.PostCreator()
         scraper = xVideosScraper()
-        scraper.scraping_homepage(br, htmlscraper, parser, wpPost, xvideoshomepage)
-        #scraper.scraping_categories(br, htmlscraper, parser, wpPost, xvideoshomepage)
+        soup = BeautifulSoup(homepage)
+        totalUrlsVideos = parser.getUrlsFromVideos(soup)
+        totalUrlsCategories = parser.getUrlsFromCategories(soup)
+        totalUrlsVideos = list(set(totalUrlsVideos))
+        totalUrlsCategories = list(set(totalUrlsCategories))
+        scraper.scrape_videos(br, htmlscraper, parser, wpPost, totalUrlsVideos)
+        scraper.scrape_from_category(br, htmlscraper, parser, wpPost, totalUrlsCategories, scraper)
         print "Scraping finished"
 
 xVideosScraper().main()
