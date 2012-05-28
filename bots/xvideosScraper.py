@@ -14,7 +14,7 @@ class xVideosScraper():
         self.dataHandler = DataHandler()
 
     def scrape_videos(self, br, htmlscraper, parser, wpPost, videoUrls):
-        postList = wpPost.get_posts(1500)
+        postList = wpPost.get_posts(10000)
         for i in range(len(videoUrls)):
             try:
                 print "---------------------" + str(i) + " from " + str(len(videoUrls)) + "------------------------"

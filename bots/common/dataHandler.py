@@ -1,4 +1,5 @@
 import os
+import shlex
 
 class DataHandler():
 
@@ -28,7 +29,8 @@ class DataHandler():
         return categories_to_post
 
     def prepare_tags_for_post(self, title):
-        tags_to_post = []
-        for item in title:
-                tags_to_post.append(item)
-        return tags_to_post
+        auxString = shlex.split(title)
+        categories = []
+        for i in auxString:
+            categories.append(str(i.lower()))
+        return categories

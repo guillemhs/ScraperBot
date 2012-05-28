@@ -69,6 +69,7 @@ class YoupornParser():
                     lin = line.split('>')
                     duration = lin[3].split('<')
         return str(duration[0])
+
     def prepare_duration_for_snippets(self, duration):
         #format T30M00S
         min = duration.split('min')
