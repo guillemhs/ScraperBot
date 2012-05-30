@@ -10,6 +10,8 @@ import datetime
 from Crypto.Random.random import randrange
 import dataHandler
 import random
+from random import randint
+import calendar
 
 class PostCreator():
 
@@ -117,17 +119,26 @@ class PostCreator():
     def prepare_post_date(self):
         print "prepare post date"
         now = datetime.datetime.now()
-        minute = randrange(now.minute, 59)
-        hour = randrange(now.hour, 23)
+        if now.day == 31:
+            dayRange = 1
+        elif (calendar.isleap(now.year) and now.day == 29):
+            dayRange = 1
+        else:
+            dayRange = now.day + 1
+
+        day = randint(now.day, dayRange)
+        minute = randint(now.minute, 59)
+        hour = randint(now.hour, 23)
+
         if now.month < 10:
             month = "0" + str(now.month)
         else:
             month = str(now.month)
 
         if now.day < 10:
-            day = "0" + str(now.day)
+            day = "0" + str(day)
         else:
-            day = str(now.day)
+            day = str(day)
 
         if now.hour < 10:
             hour = "0" + str(hour)
@@ -135,9 +146,9 @@ class PostCreator():
             hour = str(hour)
 
         if now.minute < 10:
-            minute = "0" + str(now.minute)
+            minute = "0" + str(minute)
         else:
-            minute = str(now.minute)
+            minute = str(minute)
 
         if now.second < 10:
             second = "0" + str(now.second)

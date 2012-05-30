@@ -14,7 +14,7 @@ class xHamsterScraper():
         self.dataHandler = DataHandler()
 
     def scrape_videos(self, br, htmlscraper, parser, wpPost, videoUrls, soupFromPage):
-        postList = wpPost.get_posts(10)
+        postList = wpPost.get_posts(1000)
         for i in range(len(videoUrls)):
             try:
                 print "---------------------" + str(i) + " from " + str(len(videoUrls)) + "------------------------"
