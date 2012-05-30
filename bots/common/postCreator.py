@@ -18,8 +18,8 @@ class PostCreator():
     def __init__(self):
         homeDirectory = os.getenv("HOME")
         sys.path.append(r"" + homeDirectory + "/ScraperBot" + "")
-        self.wp_site = "http://localhost/wordpress/xmlrpc.php"
-        #self.wp_site = "http://www.hottestporn4u.com/xmlrpc.php"
+        #self.wp_site = "http://localhost/wordpress/xmlrpc.php"
+        self.wp_site = "http://www.hottestporn4u.com/xmlrpc.php"
         self.login = "pornmaster"
         self.password = "pornmasterpiece"
         self.dataHandler = dataHandler.DataHandler()
@@ -128,7 +128,7 @@ class PostCreator():
 
         day = randint(now.day, dayRange)
         minute = randint(now.minute, 59)
-        hour = randint(now.hour, 23)
+        hour = randint(0, 23)
 
         if now.month < 10:
             month = "0" + str(now.month)
@@ -140,7 +140,7 @@ class PostCreator():
         else:
             day = str(day)
 
-        if now.hour < 10:
+        if hour < 10:
             hour = "0" + str(hour)
         else:
             hour = str(hour)
