@@ -105,7 +105,7 @@ class PostCreator():
         post0.date_created = str(dateFormat)
         #post0.date_created = '20120507T12:11:59'
         print "WP Date: " + post0.date_created
-        #print "before wp.call "
+        print "before wp.call "
         wp.call(NewPost(post0, True))
 
     def prepare_rating_for_post(self):
@@ -119,23 +119,30 @@ class PostCreator():
     def prepare_post_date(self):
         print "prepare post date"
         now = datetime.datetime.now()
-        if now.day == 31:
-            dayRange = 1
+        lastDay = self.get_last_day_of_the_month(now)
+        if now.day == lastDay.day:
+            day = randint(1, lastDay.day)
+            month = now.month + 1
         elif (calendar.isleap(now.year) and now.day == 29):
-            dayRange = 1
+            day = randint(1, lastDay.day)
+            month = now.month + 1
+        elif (not(calendar.isleap(now.year)) and now.day == 28):
+            day = randint(1, lastDay.day)
+            month = now.month + 1
         else:
             dayRange = now.day + 1
+            day = randint(now.day, dayRange)
+            month = now.month
 
-        day = randint(now.day, dayRange)
         minute = randint(now.minute, 59)
         hour = randint(0, 23)
 
-        if now.month < 10:
-            month = "0" + str(now.month)
+        if month < 10:
+            month = "0" + str(month)
         else:
-            month = str(now.month)
+            month = str(month)
 
-        if now.day < 10:
+        if day < 10:
             day = "0" + str(day)
         else:
             day = str(day)
@@ -145,7 +152,7 @@ class PostCreator():
         else:
             hour = str(hour)
 
-        if now.minute < 10:
+        if minute < 10:
             minute = "0" + str(minute)
         else:
             minute = str(minute)
@@ -156,6 +163,7 @@ class PostCreator():
             second = str(now.second)
 
         date = str(now.year) + "" + month + "" + day + "T" + hour + ":" + minute + ":" + second
+        print str(date)
         return str(date)
 
     def get_posts(self, number_of_posts):
@@ -163,3 +171,9 @@ class PostCreator():
         post0 = WordPressPost()
         post0 = wp.call(GetRecentPosts(number_of_posts))
         return post0
+
+    def get_last_day_of_the_month(self, date):
+        if date.month == 12:
+            return date.replace(day=31)
+        return date.replace(month=date.month + 1, day=1) - datetime.timedelta(days=1)
+
