@@ -68,5 +68,3 @@ class YouPornScraper():
         scraper.scrape_videos(br, htmlscraper, parser, wpPost, totalUrlsVideos)
         scraper.scrape_from_category(br, htmlscraper, parser, wpPost, totalUrlsCategories, scraper)
         print "Youporn scraper bot is finishing ..."
-
-YouPornScraper().main()
