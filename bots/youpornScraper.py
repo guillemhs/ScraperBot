@@ -24,9 +24,9 @@ class YouPornScraper():
                     print "Content already posted"
                 else:
                     print "Video scraping started ..."
-                    tags = htmlscraper.convert_title_to_categories(str(title))
+                    title_as_categories = htmlscraper.convert_hypen_into_space(title)
+                    categories = htmlscraper.convert_string_into_categories(title_as_categories)
                     soup = BeautifulSoup(br.scrap_website(videoUrls[i]))
-                    soup.prettify()
                     thumbnail = parser.get_thumbnail(soup)
                     print "thumbnail: " + thumbnail
                     paraVideo = parser.parse_video_id(videoUrls[i])
@@ -39,7 +39,7 @@ class YouPornScraper():
                     duration_for_snippets = parser.prepare_duration_for_snippets(video_duration)
                     print "duration for snippets: " + duration_for_snippets
                     print "Wordpress post creator starting ..."
-                    wpPost.createPost(title, thumbnail, iframe, video_duration, duration_for_snippets, tags, embedurl)
+                    wpPost.createPost(title, thumbnail, iframe, video_duration, duration_for_snippets, categories, embedurl)
                     print "Scraped video [OK]"
             except:
                 pass

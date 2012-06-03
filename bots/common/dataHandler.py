@@ -1,5 +1,4 @@
 import os
-import shlex
 
 class DataHandler():
 
@@ -25,12 +24,13 @@ class DataHandler():
         for item in title:
             for element in categorylist:
                 if element == item:
-                    categories_to_post.append(item)
+                    categories_to_post.append(str(item))
         return categories_to_post
 
     def prepare_tags_for_post(self, title):
-        auxString = shlex.split(title)
-        categories = []
-        for i in auxString:
-            categories.append(str(i.lower()))
-        return categories
+        aux = title.split(" ")
+        tags_to_post = []
+        tags_to_post.append('porn')
+        for item in aux:
+            tags_to_post.append(str(item.strip()))
+        return tags_to_post

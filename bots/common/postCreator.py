@@ -7,7 +7,6 @@ import time
 from wordpress_xmlrpc.wordpress import WordPressPost
 from wordpress_xmlrpc.methods.posts import NewPost, GetRecentPosts
 import datetime
-from Crypto.Random.random import randrange
 import dataHandler
 import random
 from random import randint
@@ -18,8 +17,8 @@ class PostCreator():
     def __init__(self):
         homeDirectory = os.getenv("HOME")
         sys.path.append(r"" + homeDirectory + "/ScraperBot" + "")
-        #self.wp_site = "http://localhost/wordpress/xmlrpc.php"
-        self.wp_site = "http://www.hottestporn4u.com/xmlrpc.php"
+        self.wp_site = "http://localhost/wordpress/xmlrpc.php"
+        #self.wp_site = "http://www.hottestporn4u.com/xmlrpc.php"
         self.login = "pornmaster"
         self.password = "pornmasterpiece"
         self.dataHandler = dataHandler.DataHandler()
@@ -77,10 +76,7 @@ class PostCreator():
 
         wp = self.connect_the_client()
 
-        post0 = WordPressPost()
-        post0.title = title
-        print "WP title: " + post0.title
-        #post0.description = iframe + "Duration <img src=" + thumbnail + " alt=" + title + "><br>" + videoduration
+
         average = str(round(self.prepare_rating_for_post(), 2))
         print "Average: " + average + "/10"
         number_of_votes = str(self.prepare_number_of_votes())
@@ -94,19 +90,16 @@ class PostCreator():
         print "number_of_votes " + number_of_votes
         print "categories " + str(categories)
         print "tags " + str(self.dataHandler.prepare_tags_for_post(title))
-        post0.description = '<div class="hreview-aggregate"><div class="item vcard"><div itemscope itemtype="http://schema.org/VideoObject"><h2 class="fn"><meta itemprop="embedURL" content="' + url + '" />' + iframe + '<p><span itemprop="name">' + title + '</span></h2><meta itemprop="duration" content="' + snippets_Duration + '" /><h3>(' + videoduration + ')</h3><meta itemprop="thumbnailUrl" content="' + thumbnail + '" /><p><span itemprop="description">This video is called ' + title + '</span></div></div><span class="rating"><span class="average">' + average + '</span> out of <span class="best"> 10 </span>based on <span class="votes">' + number_of_votes + ' </span>votes</span><p><img src="' + thumbnail + '" alt="' + title + '"><br></div>'
-        print "WP description: " + post0.description
-        #Categories and tags correct
-        #post0.categories = ['latest updates', 'new', 'amateur', 'american', 'anal', 'blonde', 'sex', 'fuck', 'girls', 'porn', 'pornstar']
-        #post0.tags = ['latest updates', 'new', 'amateur', 'american', 'anal', 'blonde', 'sex', 'fuck', 'girls', 'porn', 'pornstar']
-        post0.categories = self.dataHandler.prepare_categories_for_post(categories, self.categoriesList)
-        post0.tags = self.dataHandler.prepare_tags_for_post(title)
         dateFormat = self.prepare_post_date()
-        post0.date_created = str(dateFormat)
-        #post0.date_created = '20120507T12:11:59'
-        print "WP Date: " + post0.date_created
-        print "before wp.call "
-        wp.call(NewPost(post0, True))
+
+        post = WordPressPost()
+        post.title = title
+        post.description = '<div class="hreview-aggregate"><div class="item vcard"><div itemscope itemtype="http://schema.org/VideoObject"><h2 class="fn"><meta itemprop="embedURL" content="' + url + '" />' + iframe + '<p><span itemprop="name">' + title + '</span></h2><meta itemprop="duration" content="' + snippets_Duration + '" /><h3>(' + videoduration + ')</h3><meta itemprop="thumbnailUrl" content="' + thumbnail + '" /><p><span itemprop="description">This video is called ' + title + '</span></div></div><span class="rating"><span class="average">' + average + '</span> out of <span class="best"> 10 </span>based on <span class="votes">' + number_of_votes + ' </span>votes</span><p><img src="' + thumbnail + '" alt="' + title + '"><br></div>'
+        post.categories = self.dataHandler.prepare_categories_for_post(categories, self.categoriesList)
+        post.tags = self.dataHandler.prepare_tags_for_post(title)
+
+        post.date_created = str(dateFormat)
+        wp.call(NewPost(post, True))
 
     def prepare_rating_for_post(self):
         var = random.uniform(7.5, 10)
@@ -176,4 +169,3 @@ class PostCreator():
         if date.month == 12:
             return date.replace(day=31)
         return date.replace(month=date.month + 1, day=1) - datetime.timedelta(days=1)
-
