@@ -67,5 +67,3 @@ class xHamsterScraper():
         scraper.scrape_videos(br, htmlscraper, parser, wpPost, totalUrlsVideos, soup)
         scraper.scrape_from_category(br, htmlscraper, parser, wpPost, totalUrlsCategories, scraper)
         print "xhamster scraper bot is finishing ..."
-
-xHamsterScraper().main()

@@ -71,5 +71,3 @@ class xVideosScraper():
         scraper.scrape_videos(br, htmlscraper, parser, wpPost, totalUrlsVideos)
         scraper.scrape_from_category(br, htmlscraper, parser, wpPost, totalUrlsCategories, scraper)
         print "Scraping finished"
-
-xVideosScraper().main()

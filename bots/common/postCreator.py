@@ -1,16 +1,14 @@
 import sys
 import os
 import urllib2
-from wordpress_xmlrpc.base import Client
 import xmlrpclib
 import time
-from wordpress_xmlrpc.wordpress import WordPressPost
-from wordpress_xmlrpc.methods.posts import NewPost, GetRecentPosts
 import datetime
 import dataHandler
 import random
 from random import randint
 import calendar
+import wordpresslib
 
 class PostCreator():
 
@@ -23,10 +21,8 @@ class PostCreator():
         self.password = "pornmasterpiece"
         self.dataHandler = dataHandler.DataHandler()
         self.categoriesList = self.dataHandler.read_categories()
-
-    def connect_the_client(self):
-        wp = Client(self.wp_site, self.login, self.password)
-        return wp
+        self.wp = wordpresslib.WordPressClient(self.wp_site, self.login, self.password)
+        self.wp.selectBlog(0)
 
     def get_url_content(self, url):
         try:
@@ -73,33 +69,27 @@ class PostCreator():
         #user_from_keyboard = enter_WP_user()
         #password_from_keyboard = enter_WP_password()
         print "WP creating post ..."
-
-        wp = self.connect_the_client()
-
-
         average = str(round(self.prepare_rating_for_post(), 2))
-        print "Average: " + average + "/10"
         number_of_votes = str(self.prepare_number_of_votes())
-        print "Votes: " + number_of_votes
-        print "url " + url
-        print "iframe " + iframe
-        print "title " + title
-        print "videoduration " + videoduration
-        print "thumbnail " + thumbnail
-        print "average " + average
-        print "number_of_votes " + number_of_votes
-        print "categories " + str(categories)
-        print "tags " + str(self.dataHandler.prepare_tags_for_post(title))
         dateFormat = self.prepare_post_date()
 
-        post = WordPressPost()
-        post.title = title
-        post.description = '<div class="hreview-aggregate"><div class="item vcard"><div itemscope itemtype="http://schema.org/VideoObject"><h2 class="fn"><meta itemprop="embedURL" content="' + url + '" />' + iframe + '<p><span itemprop="name">' + title + '</span></h2><meta itemprop="duration" content="' + snippets_Duration + '" /><h3>(' + videoduration + ')</h3><meta itemprop="thumbnailUrl" content="' + thumbnail + '" /><p><span itemprop="description">This video is called ' + title + '</span></div></div><span class="rating"><span class="average">' + average + '</span> out of <span class="best"> 10 </span>based on <span class="votes">' + number_of_votes + ' </span>votes</span><p><img src="' + thumbnail + '" alt="' + title + '"><br></div>'
-        post.categories = self.dataHandler.prepare_categories_for_post(categories, self.categoriesList)
-        post.tags = self.dataHandler.prepare_tags_for_post(title)
-
-        post.date_created = str(dateFormat)
-        wp.call(NewPost(post, True))
+        try:
+            post = wordpresslib.WordPressPost()
+            post.title = title
+            post.description = '<div class="hreview-aggregate"><div class="item vcard"><div itemscope itemtype="http://schema.org/VideoObject"><h2 class="fn"><meta itemprop="embedURL" content="' + url + '" />' + iframe + '<p><span itemprop="name">' + title + '</span></h2><meta itemprop="duration" content="' + snippets_Duration + '" /><h3>(' + videoduration + ')</h3><meta itemprop="thumbnailUrl" content="' + thumbnail + '" /><p><span itemprop="description">This video is called ' + title + '</span></div></div><span class="rating"><span class="average">' + average + '</span> out of <span class="best"> 10 </span>based on <span class="votes">' + number_of_votes + ' </span>votes</span><p><img src="' + thumbnail + '" alt="' + title + '"><br></div>'
+            post.categories = str(self.dataHandler.prepare_categories_for_post(categories, self.categoriesList))
+            post.tags = str(self.dataHandler.prepare_tags_for_post(title))
+            post.date_created = str(dateFormat)
+            self.wp.newPost(post, True)
+            print "post.title " + post.title
+            print "post.description " + post.description
+            print "post.categories " + post.categories
+            print "post.tags " + post.tags
+            print "post.date_created " + post.date_created
+            print "WP post uploaded [OK]"
+        except:
+            print "Wp Call error"
+            print "WP post uploaded [KO] Not Uploaded"
 
     def prepare_rating_for_post(self):
         var = random.uniform(7.5, 10)
@@ -110,7 +100,6 @@ class PostCreator():
         return var
 
     def prepare_post_date(self):
-        print "prepare post date"
         now = datetime.datetime.now()
         lastDay = self.get_last_day_of_the_month(now)
         if now.day == lastDay.day:
@@ -156,13 +145,10 @@ class PostCreator():
             second = str(now.second)
 
         date = str(now.year) + "" + month + "" + day + "T" + hour + ":" + minute + ":" + second
-        print str(date)
         return str(date)
 
     def get_posts(self, number_of_posts):
-        wp = self.connect_the_client()
-        post0 = WordPressPost()
-        post0 = wp.call(GetRecentPosts(number_of_posts))
+        post0 = self.wp.getRecentPosts(number_of_posts)
         return post0
 
     def get_last_day_of_the_month(self, date):
