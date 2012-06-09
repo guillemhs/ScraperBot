@@ -50,10 +50,8 @@ __copyright__ = "Copyright (c) 2005 Michele Ferretti, 2011 Charles-Axel Dein"
 __license__ = "LGPL"
 
 import exceptions
-import re
 import os
 import xmlrpclib
-import datetime
 import time
 
 class WordPressException(exceptions.Exception):
@@ -103,7 +101,7 @@ class WordPressPost:
     def __init__(self):
         self.id = 0
         self.title = ''
-        self.date = None
+        self.date = ''
         self.permaLink = ''
         self.description = ''
         self.textMore = ''
@@ -228,33 +226,16 @@ class WordPressClient:
         """Insert new post
         """
         blogContent = {
-            'title' : post.title,
-            'description' : post.description,
+            'title': post.title,
+            'description': post.description,
+            'categories': post.categories,
             'mt_keywords': post.tags,
-            'custom_fields': post.customFields,
+            'dateCreated': xmlrpclib.DateTime(post.date)
         }
-
-        # add categories
-        i = 0
-        categories = []
-        for cat in post.categories:
-            if i == 0:
-                categories.append({'categoryId' : cat, 'isPrimary' : 1})
-            else:
-                categories.append({'categoryId' : cat, 'isPrimary' : 0})
-            i += 1
-
         # insert new post
-        idNewPost = int(self._server.metaWeblog.newPost(self.blogId, self.user, self.password, blogContent, 0))
-
-        # set categories for new post
-        self.setPostCategories(idNewPost, categories)
-
-        # publish post if publish set at True 
-        if publish:
-            self.publishPost(idNewPost)
-
-        return idNewPost
+        idPost = self._server.metaWeblog.newPost("1", self.user, self.password, blogContent, True)
+        print "Post inserted"
+        return idPost
 
     def getPostCategories(self, postId):
         """Get post's categories
