@@ -129,6 +129,7 @@ class WordPressClient:
         self.blogId = 0
         self.categories = None
         self._server = xmlrpclib.ServerProxy(self.url)
+        self.categoriesFromBlog = self.getCategoriesFromBlog()
 
     def _filterPost(self, post):
         """Transform post struct in WordPressPost instance 
@@ -167,6 +168,21 @@ class WordPressClient:
         """Get supported methods list
         """
         return self._server.mt.supportedMethods()
+
+    def getCategoriesFromBlog(self):
+        """Get categories from Wordpress blog
+        """
+        categoriesStruct = self._server.metaWeblog.getCategories(self.blogId, self.user, self.password)
+        return categoriesStruct
+
+    def getCategoryNameByCategoryId(self, categoryName):
+        """Get categoryId from CategoryName
+        """
+        for cat in self.categoriesFromBlog:
+            if categoryName == cat['categoryName']:
+                return int(cat['categoryId'])
+            else:
+                return int('239')
 
     def getLastPost(self):
         """Get last post
@@ -222,20 +238,39 @@ class WordPressClient:
         except xmlrpclib.Fault, fault:
             raise WordPressException(fault)
 
-    def newPost(self, post, publish):
+    def newPost(self, post):
         """Insert new post
         """
         blogContent = {
-            'title': post.title,
-            'description': post.description,
-            'categories': post.categories,
-            'mt_keywords': post.tags,
-            'dateCreated': xmlrpclib.DateTime(post.date)
+            'title' : post.title,
+            'description' : post.description,
+            'mt_keywords' : post.tags
         }
+
+        # Use provided date, if provided...
+        if post.date:
+            blogContent['dateCreated'] = xmlrpclib.DateTime(post.date)
+
+        # add categories
+        i = 0
+        #=======================================================================
+        # categories = []
+        # for cat in post.categories:
+        #    if i == 0:
+        #        categories.append({'categoryName' : cat, 'isPrimary' : True, 'categoryId': self.getCategoryIdFromName(str(cat))})
+        #    else:
+        #        categories.append({'categoryName' : cat, 'isPrimary' : False, 'categoryId': self.getCategoryIdFromName(str(cat))})
+        #    i += 1
+        #=======================================================================
         # insert new post
-        idPost = self._server.metaWeblog.newPost("1", self.user, self.password, blogContent, True)
-        print "Post inserted"
-        return idPost
+        idNewPost = int(self._server.metaWeblog.newPost(self.blogId, self.user, self.password, blogContent, True))
+        #categories = [{'isPrimary': True, 'categoryName': 'latest updates', 'categoryId': '239'}, {'isPrimary': False, 'categoryName': 'lesbian', 'categoryId': '138'}, {'isPrimary': False, 'categoryName': 'sex', 'categoryId': '191'}]
+        # set categories for new post
+        # print categories
+        self.setPostCategories(idNewPost, post.categories)
+        self._server.mt.publishPost(idNewPost, self.user, self.password)
+        print "newPost finished"
+        return idNewPost
 
     def getPostCategories(self, postId):
         """Get post's categories
@@ -334,7 +369,7 @@ class WordPressClient:
         """Publish post
         """
         try:
-            return (self._server.mt.publishPost(postId, self.user, self.password) == 1)
+            return (self._server.mt.publishPost(postId, self.user, self.password) == True)
         except xmlrpclib.Fault, fault:
             raise WordPressException(fault)
 

@@ -1,5 +1,3 @@
-import sys
-import os
 import urllib2
 import xmlrpclib
 import time
@@ -13,16 +11,15 @@ import wordpresslib
 class PostCreator():
 
     def __init__(self):
-        homeDirectory = os.getenv("HOME")
-        sys.path.append(r"" + homeDirectory + "/ScraperBot" + "")
-        self.wp_site = "http://localhost/wordpress/xmlrpc.php"
-        #self.wp_site = "http://www.hottestporn4u.com/xmlrpc.php"
+        #self.wp_site = "http://localhost/wordpress/xmlrpc.php"
+        self.wp_site = "http://www.hottestporn4u.com/xmlrpc.php"
         self.login = "pornmaster"
         self.password = "pornmasterpiece"
         self.dataHandler = dataHandler.DataHandler()
         self.categoriesList = self.dataHandler.read_categories()
         self.wp = wordpresslib.WordPressClient(self.wp_site, self.login, self.password)
         self.wp.selectBlog(0)
+        self.wp.getCategoriesFromBlog()
 
     def get_url_content(self, url):
         try:
@@ -73,23 +70,19 @@ class PostCreator():
         number_of_votes = str(self.prepare_number_of_votes())
         dateFormat = self.prepare_post_date()
 
-        try:
-            post = wordpresslib.WordPressPost()
-            post.title = title
-            post.description = '<div class="hreview-aggregate"><div class="item vcard"><div itemscope itemtype="http://schema.org/VideoObject"><h2 class="fn"><meta itemprop="embedURL" content="' + url + '" />' + iframe + '<p><span itemprop="name">' + title + '</span></h2><meta itemprop="duration" content="' + snippets_Duration + '" /><h3>(' + videoduration + ')</h3><meta itemprop="thumbnailUrl" content="' + thumbnail + '" /><p><span itemprop="description">This video is called ' + title + '</span></div></div><span class="rating"><span class="average">' + average + '</span> out of <span class="best"> 10 </span>based on <span class="votes">' + number_of_votes + ' </span>votes</span><p><img src="' + thumbnail + '" alt="' + title + '"><br></div>'
-            post.categories = str(self.dataHandler.prepare_categories_for_post(categories, self.categoriesList))
-            post.tags = str(self.dataHandler.prepare_tags_for_post(title))
-            post.date = str(dateFormat)
-            print "post.title " + post.title
-            print "post.description " + post.description
-            print "post.categories " + post.categories
-            print "post.tags " + post.tags
-            print "post.date_created " + post.date
-            self.wp.newPost(post, True)
-            print "WP post uploaded [OK]"
-        except:
-            print "Wp Call error"
-            print "WP post uploaded [KO] Not Uploaded"
+        post = wordpresslib.WordPressPost()
+        post.title = title
+        post.description = '<div class="hreview-aggregate"><div class="item vcard"><div itemscope itemtype="http://schema.org/VideoObject"><h2 class="fn"><meta itemprop="embedURL" content="' + url + '" />' + iframe + '<p><span itemprop="name">' + title + '</span></h2><meta itemprop="duration" content="' + snippets_Duration + '" /><h3>(' + videoduration + ')</h3><meta itemprop="thumbnailUrl" content="' + thumbnail + '" /><p><span itemprop="description">This video is called ' + title + '</span></div></div><span class="rating"><span class="average">' + average + '</span> out of <span class="best"> 10 </span>based on <span class="votes">' + number_of_votes + ' </span>votes</span><p><img src="' + thumbnail + '" alt="' + title + '"><br></div>'
+        post.categories = str(self.dataHandler.prepare_categories_for_post(categories, self.categoriesList, self.wp))
+        post.tags = str(self.dataHandler.prepare_tags_for_post(title))
+        post.date = str(dateFormat)
+        print "post.title " + post.title
+        print "post.description " + post.description
+        print "post.categories " + post.categories
+        print "post.tags " + post.tags
+        print "post.date_created " + post.date
+        idPost = self.wp.newPost(post)
+        print "WP post " + str(idPost) + " uploaded [OK]"
 
     def prepare_rating_for_post(self):
         var = random.uniform(7.5, 10)
