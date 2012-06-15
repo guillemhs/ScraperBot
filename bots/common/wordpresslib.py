@@ -53,6 +53,8 @@ import exceptions
 import os
 import xmlrpclib
 import time
+import sys
+import socket
 
 class WordPressException(exceptions.Exception):
     """Custom exception for WordPress client operations
@@ -128,7 +130,8 @@ class WordPressClient:
         self.password = password
         self.blogId = 0
         self.categories = None
-        self._server = xmlrpclib.ServerProxy(self.url)
+        #self._server = xmlrpclib.ServerProxy(self.url)
+        self._server = xmlrpclib.Server(self.url)
         self.categoriesFromBlog = self.getCategoriesFromBlog()
 
     def _filterPost(self, post):
@@ -251,23 +254,34 @@ class WordPressClient:
         if post.date:
             blogContent['dateCreated'] = xmlrpclib.DateTime(post.date)
 
+        #prepare categories
+        cats = post.categories
+        cats2 = cats.replace("'", "")
+        cats3 = cats2.replace("[", "")
+        cats4 = cats3.replace("]", "")
+        cats5 = cats4.split(",")
+        catAux = []
+        for cat1 in cats5:
+            catAux.append(cat1.strip())
+
         # add categories
         i = 0
-        #=======================================================================
-        # categories = []
-        # for cat in post.categories:
-        #    if i == 0:
-        #        categories.append({'categoryName' : cat, 'isPrimary' : True, 'categoryId': self.getCategoryIdFromName(str(cat))})
-        #    else:
-        #        categories.append({'categoryName' : cat, 'isPrimary' : False, 'categoryId': self.getCategoryIdFromName(str(cat))})
-        #    i += 1
-        #=======================================================================
-        # insert new post
+        categories = []
+        for cat in catAux:
+            i = i + 1
+            if i == 0:
+                categories.append({'categoryName' : cat, 'isPrimary' : True, 'categoryId': self.getCategoryIdFromName(str(cat))})
+            else:
+                categories.append({'categoryName' : cat, 'isPrimary' : False, 'categoryId': self.getCategoryIdFromName(str(cat))})
+            i += 1
+
+        blogContent['categories'] = str(categories)
+        print "insert new post"
         idNewPost = int(self._server.metaWeblog.newPost(self.blogId, self.user, self.password, blogContent, True))
-        #categories = [{'isPrimary': True, 'categoryName': 'latest updates', 'categoryId': '239'}, {'isPrimary': False, 'categoryName': 'lesbian', 'categoryId': '138'}, {'isPrimary': False, 'categoryName': 'sex', 'categoryId': '191'}]
-        # set categories for new post
-        # print categories
-        self.setPostCategories(idNewPost, post.categories)
+        print "idNewPost" + str(idNewPost)
+        print "set categories for new post"
+        self.setPostCategories(idNewPost, categories)
+        print "publish post"
         self._server.mt.publishPost(idNewPost, self.user, self.password)
         print "newPost finished"
         return idNewPost

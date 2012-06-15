@@ -6,7 +6,9 @@ import dataHandler
 import random
 from random import randint
 import calendar
-import wordpresslib
+from wordpress_xmlrpc.wordpress import WordPressPost
+from wordpress_xmlrpc.base import Client
+from wordpress_xmlrpc.methods.posts import NewPost
 
 class PostCreator():
 
@@ -17,9 +19,9 @@ class PostCreator():
         self.password = "pornmasterpiece"
         self.dataHandler = dataHandler.DataHandler()
         self.categoriesList = self.dataHandler.read_categories()
-        self.wp = wordpresslib.WordPressClient(self.wp_site, self.login, self.password)
-        self.wp.selectBlog(0)
-        self.wp.getCategoriesFromBlog()
+        self.wp = Client(self.wp_site, self.login, self.password)
+        #self.wp.selectBlog(0)
+        #self.wp.getCategoriesFromBlog()
 
     def get_url_content(self, url):
         try:
@@ -69,19 +71,50 @@ class PostCreator():
         average = str(round(self.prepare_rating_for_post(), 2))
         number_of_votes = str(self.prepare_number_of_votes())
         dateFormat = self.prepare_post_date()
-
-        post = wordpresslib.WordPressPost()
+        #=======================================================================
+        # post = wordpresslib.WordPressPost()
+        # post.title = title
+        # post.description = '<div class="hreview-aggregate"><div class="item vcard"><div itemscope itemtype="http://schema.org/VideoObject"><h2 class="fn"><meta itemprop="embedURL" content="' + url + '" />' + iframe + '<p><span itemprop="name">' + title + '</span></h2><meta itemprop="duration" content="' + snippets_Duration + '" /><h3>(' + videoduration + ')</h3><meta itemprop="thumbnailUrl" content="' + thumbnail + '" /><p><span itemprop="description">This video is called ' + title + '</span></div></div><span class="rating"><span class="average">' + average + '</span> out of <span class="best"> 10 </span>based on <span class="votes">' + number_of_votes + ' </span>votes</span><p><img src="' + thumbnail + '" alt="' + title + '"><br></div>'
+        # post.categories = str(self.dataHandler.prepare_categories_for_post(categories, self.categoriesList, self.wp))
+        # post.tags = str(self.dataHandler.prepare_tags_for_post(title))
+        # post.date = str(dateFormat)
+        # print "post.title " + post.title
+        # print "post.description " + post.description
+        # print "post.categories " + post.categories
+        # print "post.tags " + post.tags
+        # print "post.date_created " + post.date
+        #=======================================================================
+        #idPost = self.wp.newPost(post)
+        post = WordPressPost()
+        client = Client(self.wp_site, self.login, self.password)
         post.title = title
         post.description = '<div class="hreview-aggregate"><div class="item vcard"><div itemscope itemtype="http://schema.org/VideoObject"><h2 class="fn"><meta itemprop="embedURL" content="' + url + '" />' + iframe + '<p><span itemprop="name">' + title + '</span></h2><meta itemprop="duration" content="' + snippets_Duration + '" /><h3>(' + videoduration + ')</h3><meta itemprop="thumbnailUrl" content="' + thumbnail + '" /><p><span itemprop="description">This video is called ' + title + '</span></div></div><span class="rating"><span class="average">' + average + '</span> out of <span class="best"> 10 </span>based on <span class="votes">' + number_of_votes + ' </span>votes</span><p><img src="' + thumbnail + '" alt="' + title + '"><br></div>'
         post.categories = str(self.dataHandler.prepare_categories_for_post(categories, self.categoriesList, self.wp))
         post.tags = str(self.dataHandler.prepare_tags_for_post(title))
         post.date = str(dateFormat)
-        print "post.title " + post.title
-        print "post.description " + post.description
-        print "post.categories " + post.categories
-        print "post.tags " + post.tags
-        print "post.date_created " + post.date
-        idPost = self.wp.newPost(post)
+        #prepare categories
+        cats = post.categories
+        cats2 = cats.replace("'", "")
+        cats3 = cats2.replace("[", "")
+        cats4 = cats3.replace("]", "")
+        cats5 = cats4.split(",")
+        catAux = []
+        for cat1 in cats5:
+            catAux.append(cat1.strip())
+
+        # add categories
+        i = 0
+        categories = []
+        for cat in catAux:
+            i = i + 1
+            if i == 0:
+                categories.append({'categoryName' : cat, 'isPrimary' : True, 'categoryId': self.getCategoryIdFromName(str(cat))})
+            else:
+                categories.append({'categoryName' : cat, 'isPrimary' : False, 'categoryId': self.getCategoryIdFromName(str(cat))})
+            i += 1
+
+        post.categories = str(categories)
+        idPost = client.call(NewPost(post, True))
         print "WP post " + str(idPost) + " uploaded [OK]"
 
     def prepare_rating_for_post(self):
