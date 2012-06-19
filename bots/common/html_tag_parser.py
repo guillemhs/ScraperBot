@@ -26,10 +26,7 @@ class HtmlTagParser():
         return href_parsed
 
     def parse_src_from_video_iframe(self, content):
-        print "parse_src_from_video_iframe " + content
         mosoup = BeautifulSoup(content)
-        #tags = mosoup.findAll('iframe')
-        #print "\n".join(set(tag['src'] for tag in tags))
         for tag in mosoup.findAll('iframe'):
             src_url = tag['src']
         return src_url

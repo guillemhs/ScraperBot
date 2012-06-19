@@ -9,12 +9,10 @@ from common.dataHandler import DataHandler
 class xVideosScraper():
 
     def __init__(self):
-        homeDirectory = os.getenv("HOME")
-        sys.path.append(r"" + homeDirectory + "/ScraperBot" + "")
         self.dataHandler = DataHandler()
 
     def scrape_videos(self, br, htmlscraper, parser, wpPost, videoUrls):
-        postList = wpPost.get_posts(1000)
+        postList = wpPost.get_posts(10)
         for i in range(len(videoUrls)):
             try:
                 print "---------------------" + str(i) + " from " + str(len(videoUrls)) + "------------------------"

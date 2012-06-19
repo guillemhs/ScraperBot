@@ -18,7 +18,7 @@ class DataHandler():
             else:
                 return False
 
-    def prepare_categories_for_post(self, title, categorylist, wp):
+    def prepare_categories_for_post(self, title, categorylist):
         categories_to_post = []
         latest = 'latest updates'
         for item in title:

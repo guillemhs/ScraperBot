@@ -1,9 +1,10 @@
 """
 Implementations of standard WordPress XML-RPC APIs.
 """
-from wordpress_xmlrpc.methods import posts
-from wordpress_xmlrpc.methods import pages
-from wordpress_xmlrpc.methods import demo
-from wordpress_xmlrpc.methods import users
-from wordpress_xmlrpc.methods import options
-from wordpress_xmlrpc.methods import comments
+import posts
+import pages
+import demo
+import users
+import categories
+import options
+import comments

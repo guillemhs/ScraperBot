@@ -56,7 +56,7 @@ class SuggestCategories(AuthenticatedMethod):
     method_args = ('category', 'max_results')
 
 
-class GetPostCategories(AuthenticatedMethod):
+class GetPostCategories(AuthParamsOffsetMixin, AuthenticatedMethod):
     """
     Retrieve list of categories assigned to a blog post.
 
@@ -70,7 +70,7 @@ class GetPostCategories(AuthenticatedMethod):
     results_class = WordPressCategory
 
 
-class SetPostCategories(AuthenticatedMethod):
+class SetPostCategories(AuthParamsOffsetMixin, AuthenticatedMethod):
     """
     Assign a set of categories to a blog post.
 

@@ -1,26 +1,7 @@
 from wordpress_xmlrpc.base import *
-from wordpress_xmlrpc.wordpress import WordPressPost, WordPressPostType
+from wordpress_xmlrpc.mixins import *
+from wordpress_xmlrpc.wordpress import WordPressPost
 
-
-class GetPosts(AuthenticatedMethod):
-    """
-    Retrieve posts from the blog.
-
-    Parameters:
-       `filter`: optional `dict` of filters:
-            * `number`
-            * `offset`
-            * `orderby`
-            * `order`: 'ASC' or 'DESC'a
-            * `post_type`: Defaults to 'post'
-            * `post_status`
-
-    Returns: `list` of :class:`WordPressPost` instances.
-    """
-    method_name = 'wp.getPosts'
-    method_args = ('number')
-    #optional_args = ('filter', 'fields')
-    results_class = WordPressPost
 
 class GetRecentPosts(AuthenticatedMethod):
     """
@@ -35,38 +16,18 @@ class GetRecentPosts(AuthenticatedMethod):
     method_args = ('num_posts',)
     results_class = WordPressPost
 
-class GetPostsList(AuthenticatedMethod):
-    """
-    Retrieve posts from the blog.
 
-    Parameters:
-       `filter`: optional `dict` of filters:
-            * `number`
-            * `offset`
-            * `orderby`
-            * `order`: 'ASC' or 'DESC'
-            * `post_type`: Defaults to 'post'
-            * `post_status`
-
-    Returns: `list` of :class:`WordPressPost` instances.
-    """
-
-    method_name = 'wp.getPosts'
-    method_args = ('number',)
-    results_class = WordPressPost
-
-class GetPost(AuthenticatedMethod):
+class GetPost(AuthParamsOffsetMixin, AuthenticatedMethod):
     """
     Retrieve an individual blog post.
 
     Parameters:
         `post_id`: ID of the blog post to retrieve.
 
-    Returns: :class:`WordPressPost` instance.
+    Returns: `WordPressPost` instance.
     """
-    method_name = 'wp.getPost'
+    method_name = 'metaWeblog.getPost'
     method_args = ('post_id',)
-    optional_args = ('fields',)
     results_class = WordPressPost
 
 
@@ -75,29 +36,31 @@ class NewPost(AuthenticatedMethod):
     Create a new post on the blog.
 
     Parameters:
-        `content`: A :class:`WordPressPost` instance with at least the `title` and `content` values set.
+        `content`: A `WordPressPost` instance with at least the `title` and `description` values set.
+        `publish`: Boolean indicating whether the blog post should be published upon creation.
 
     Returns: ID of the newly-created blog post (an integer).
     """
-    method_name = 'wp.newPost'
-    method_args = ('content',)
+    method_name = 'metaWeblog.newPost'
+    method_args = ('content', 'publish')
 
 
-class EditPost(AuthenticatedMethod):
+class EditPost(AuthParamsOffsetMixin, AuthenticatedMethod):
     """
     Edit an existing blog post.
 
     Parameters:
         `post_id`: ID of the blog post to edit.
-        `content`: A :class:`WordPressPost` instance with the new values for the blog post.
+        `content`: A `WordPressPost` instance with the new values for the blog post.
+        `publish`: Boolean indicating whether the blog post should be published upon being updated.
 
     Returns: `True` on successful edit.
     """
-    method_name = 'wp.editPost'
-    method_args = ('post_id', 'content')
+    method_name = 'metaWeblog.editPost'
+    method_args = ('post_id', 'content', 'publish')
 
 
-class DeletePost(AuthenticatedMethod):
+class DeletePost(BloggerApiMethodMixin, AuthParamsOffsetMixin, AuthenticatedMethod):
     """
     Delete a blog post.
 
@@ -106,8 +69,8 @@ class DeletePost(AuthenticatedMethod):
 
     Returns: `True` on successful deletion.
     """
-    method_name = 'wp.deletePost'
-    method_args = ('post_id',)
+    method_name = 'blogger.deletePost'
+    method_args = ('post_id', )
 
 
 class GetPostStatusList(AuthenticatedMethod):
@@ -149,34 +112,14 @@ class GetPostFormats(AuthenticatedMethod):
         return args
 
 
-class GetPostTypes(AuthenticatedMethod):
+class PublishPost(AuthParamsOffsetMixin, AuthenticatedMethod):
     """
-    Retrieve a list of post types used by the blog.
+    Mark a blog post as published.
 
     Parameters:
-        None
+        `post_id`: ID of the blog post to publish.
 
-    Returns: `dict` with names as keys and :class:`WordPressPostType` instances as values.
+    Returns: ID of the published blog post.
     """
-    method_name = 'wp.getPostTypes'
-    results_class = WordPressPostType
-
-    def process_result(self, raw_result):
-        result = {}
-        for name, raw_value in raw_result.items():
-            result[name] = self.results_class(raw_value)
-        return result
-
-
-class GetPostType(AuthenticatedMethod):
-    """
-    Retrieve an individual blog post type.
-
-    Parameters:
-        `post_type`: Name of the blog post type to retrieve.
-
-    Returns: :class:`WordPressPostType` instance.
-    """
-    method_name = 'wp.getPostType'
-    method_args = ('post_type',)
-    results_class = WordPressPostType
+    method_name = 'mt.publishPost'
+    method_args = ('post_id',)

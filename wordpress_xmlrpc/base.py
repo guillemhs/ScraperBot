@@ -1,8 +1,6 @@
+import xmlrpclib
 import collections
-
-from wordpress_xmlrpc.compat import xmlrpc_client, dict_type
-from wordpress_xmlrpc.exceptions import ServerConnectionError, UnsupportedXmlrpcMethodError, InvalidCredentialsError, XmlrpcDisabledError
-import sys
+import types
 
 
 class Client(object):
@@ -19,30 +17,14 @@ class Client(object):
         self.password = password
         self.blog_id = blog_id
 
-        try:
-            self.server = xmlrpc_client.ServerProxy(url, allow_none=True)
-            self.supported_methods = self.server.mt.supportedMethods()
-        except xmlrpc_client.ProtocolError:
-            e = sys.exc_info()[1]
-            raise ServerConnectionError(repr(e))
+        self.server = xmlrpclib.ServerProxy(url, use_datetime=True, allow_none=True)
+        self.supported_methods = self.server.mt.supportedMethods()
 
     def call(self, method):
-        if method.method_name not in self.supported_methods:
-            raise UnsupportedXmlrpcMethodError(method.method_name)
-
+        assert (method.method_name in self.supported_methods)
         server_method = getattr(self.server, method.method_name)
         args = method.get_args(self)
-
-        try:
-            raw_result = server_method(*args)
-        except xmlrpc_client.Fault:
-            e = sys.exc_info()[1]
-            if e.faultCode == 403:
-                raise InvalidCredentialsError(e.faultString)
-            elif e.faultCode == 405:
-                raise XmlrpcDisabledError(e.faultString)
-            else:
-                raise
+        raw_result = server_method(*args)
         return method.process_result(raw_result)
 
 
@@ -53,37 +35,30 @@ class XmlrpcMethod(object):
     Child classes can override methods and properties to customize behavior:
 
     Properties:
-        * `method_name`: XML-RPC method name (e.g., 'wp.getUserInfo')
-        * `method_args`: Tuple of method-specific required parameters
-        * `optional_args`: Tuple of method-specific optional parameters
-        * `results_class`: Python class which will convert an XML-RPC response dict into an object
+        `method_name`: XML-RPC method name (e.g., 'wp.getUserInfo')
+        `method_args`: Tuple of method-specific parameters
+        `args_start_position`: If greater than zero, this many dummy arguments will pad the beginning of the method argument list.
+        `default_args_position`: The index in the `method_args` list at which the default arguments should be inserted.
+        `results_class`: Python class which will convert an XML-RPC response dict into an object
+
+    Methods:
+        `default_args`: Builds set of method-non-specific arguments.
+        `get_args`: Builds the final set of XML-RPC method arguments.
+        `process_results`: Performs actions on the raw result from the XML-RPC response.
     """
     method_name = None
-    method_args = tuple()
-    optional_args = tuple()
+    method_args = None
+    args_start_position = 0
+    default_args_position = 0
     results_class = None
 
-    def __init__(self, *args, **kwargs):
-        if self.method_args or self.optional_args:
-            if self.optional_args:
-                max_num_args = len(self.method_args) + len(self.optional_args)
-                if not (len(self.method_args) <= len(args) <= max_num_args):
-                    raise ValueError("Invalid number of parameters to %s" % self.method_name)
-            else:
-                if len(args) != len(self.method_args):
-                    raise ValueError("Invalid number of parameters to %s" % self.method_name)
+    def __init__(self, *args):
+        if self.method_args:
+            if len(args) != len(self.method_args):
+                raise ValueError("Invalid number of parameters to %s" % self.method_name)
 
             for i, arg_name in enumerate(self.method_args):
                 setattr(self, arg_name, args[i])
-
-            if self.optional_args:
-                for i, arg_name in enumerate(self.optional_args, start=len(self.method_args)):
-                    if i >= len(args):
-                        break
-                    setattr(self, arg_name, args[i])
-
-        if 'results_class' in kwargs:
-            self.results_class = kwargs['results_class']
 
     def default_args(self, client):
         """
@@ -99,21 +74,19 @@ class XmlrpcMethod(object):
         """
         default_args = self.default_args(client)
 
-        if self.method_args or self.optional_args:
-            optional_args = getattr(self, 'optional_args', tuple())
+        if self.method_args:
             args = []
-            for arg in (self.method_args + optional_args):
-                if hasattr(self, arg):
-                    obj = getattr(self, arg)
-                    if hasattr(obj, 'struct'):
-                        args.append(obj.struct)
-                    else:
-                        args.append(obj)
-            args = list(default_args) + args
+            for arg in self.method_args:
+                obj = getattr(self, arg)
+                if hasattr(obj, 'struct'):
+                    args.append(obj.struct)
+                else:
+                    args.append(obj)
+            args = args[:self.default_args_position] + list(default_args) + args[self.default_args_position:]
         else:
             args = default_args
 
-        return args
+        return ((0,) * self.args_start_position) + tuple(args)
 
     def process_result(self, raw_result):
         """
@@ -123,7 +96,7 @@ class XmlrpcMethod(object):
         into one or more object instances of that class.
         """
         if self.results_class and raw_result:
-            if isinstance(raw_result, dict_type):
+            if isinstance(raw_result, types.DictType):
                 return self.results_class(raw_result)
             elif isinstance(raw_result, collections.Iterable):
                 return [self.results_class(result) for result in raw_result]
@@ -142,9 +115,15 @@ class AuthenticatedMethod(XmlrpcMethod):
     """
     An XML-RPC method for which user authentication is required.
 
-    Blog ID, username and password details will be passed from
-    the `Client` instance to the method call.
+    Username and password details will be passed from the `Client`
+    instance to the method call.
+
+    By default, the `Client`-defined blog ID will also be passed.
     """
+    requires_blog = True
 
     def default_args(self, client):
-        return (client.blog_id, client.username, client.password)
+        if self.requires_blog:
+            return (client.blog_id, client.username, client.password)
+        else:
+            return (client.username, client.password)

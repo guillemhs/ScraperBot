@@ -1,17 +1,19 @@
 from wordpress_xmlrpc.base import *
+from wordpress_xmlrpc.mixins import *
 from wordpress_xmlrpc.wordpress import WordPressBlog, WordPressAuthor, WordPressUser
 
 
-class GetUserInfo(AuthenticatedMethod):
+class GetUserInfo(BloggerApiMethodMixin, AuthenticatedMethod):
     """
     Retrieve information about the connected user.
 
     Parameters:
         None
 
-    Returns: instance of :class:`WordPressUser` representing the user whose credentials are being used with the XML-RPC API.
+    Returns: instance of `WordPressUser` representing the user whose credentials are being used with the XML-RPC API.
     """
     method_name = 'blogger.getUserInfo'
+    requires_blog = False
     results_class = WordPressUser
 
 
@@ -22,14 +24,11 @@ class GetUsersBlogs(AuthenticatedMethod):
     Parameters:
         None
 
-    Returns: `list` of :class:`WordPressBlog` instances.
+    Returns: `list` of `WordPressBlog` instances.
     """
     method_name = 'wp.getUsersBlogs'
+    requires_blog = False
     results_class = WordPressBlog
-
-    def get_args(self, client):
-        # strip off first (blog_id) parameter
-        return super(GetUsersBlogs, self).get_args(client)[1:]
 
 
 class GetAuthors(AuthenticatedMethod):
@@ -39,7 +38,7 @@ class GetAuthors(AuthenticatedMethod):
     Parameters:
         None
 
-    Returns: `list` of :class:`WordPressAuthor` instances.
+    Returns: `list` of `WordPressAuthor` instances.
     """
     method_name = 'wp.getAuthors'
     results_class = WordPressAuthor
