@@ -1,0 +1,6 @@
+# Cron schedule for the upload post script.
+# Compromise between freshness and server load: run once per hour,
+# offset to minute 5 to avoid the top-of-the-hour spike.
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+5 * * * * $HOME/ScraperBot/cron/upload_post.sh
